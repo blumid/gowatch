@@ -3,9 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"time"
 
+	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/structure"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func main() {
@@ -22,7 +27,11 @@ func main() {
 	// if err != nil {
 	// 	log.Fatal(err2)
 	// }
+	process()
 
+}
+
+func process() {
 	file, err := os.ReadFile("temp.json")
 
 	if err != nil {
@@ -30,12 +39,25 @@ func main() {
 	}
 
 	var temp []structure.Program
-	json.Unmarshal(file, &temp)
+	err2 := json.Unmarshal(file, &temp)
+	if err2 != nil {
+		fmt.Println("err2 is: ", err2)
+	}
 
 	for k, v := range temp {
 		fmt.Println("program ", k+1, " :", v.Name)
-		fmt.Println("Targets-InScope ", k+1, " :", v.Target.InScope)
-		fmt.Println("Targets-OutScope", k+1, " :", v.Target.OutScope)
-		fmt.Println("Bounty? ", k+1, " :", v.Bounty)
+		filter := bson.M{"name": v.Name}
+		if db.FindProgram(filter) {
+			continue
+		} else {
+			v.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+			v.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+			data, _ := bson.Marshal(v)
+			err := db.AddProgram(data)
+			if err != nil {
+				log.Fatal("process - adding to db: ", err)
+			}
+		}
 	}
+
 }

@@ -25,7 +25,3 @@ func init() {
 
 	collection = client.Database("gowatch").Collection("programs")
 }
-
-func Test() {
-
-}
