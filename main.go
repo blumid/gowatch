@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/structure"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func main() {
@@ -50,10 +48,8 @@ func process() {
 		if db.FindProgram(filter) {
 			continue
 		} else {
-			v.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
-			v.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
-			data, _ := bson.Marshal(v)
-			err := db.AddProgram(data)
+
+			err := db.AddProgram(&v)
 			if err != nil {
 				log.Fatal("process - adding to db: ", err)
 			}

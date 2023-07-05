@@ -527,5 +527,61 @@
   
         ]
       }
+    },
+    {
+      "allows_bounty_splitting": false,
+      "average_time_to_bounty_awarded": null,
+      "average_time_to_first_program_response": 8.0,
+      "average_time_to_report_resolved": null,
+      "handle": "truist_financial",
+      "id": 0,
+      "managed_program": true,
+      "name": "Truist Financial",
+      "offers_bounties": false,
+      "offers_swag": false,
+      "response_efficiency_percentage": 100,
+      "submission_state": "open",
+      "url": "https://hackerone.com/truist_financial",
+      "website": "http://truist.com",
+      "targets": {
+        "in_scope": [
+          {
+            "asset_identifier": "https://secure.gotapco.com",
+            "asset_type": "URL",
+            "availability_requirement": "high",
+            "confidentiality_requirement": "high",
+            "eligible_for_bounty": false,
+            "eligible_for_submission": true,
+            "instruction": "",
+            "integrity_requirement": "high",
+            "max_severity": "critical"
+          },
+          {
+            "asset_identifier": "https://www.gotapco.com",
+            "asset_type": "URL",
+            "availability_requirement": "high",
+            "confidentiality_requirement": "high",
+            "eligible_for_bounty": false,
+            "eligible_for_submission": true,
+            "instruction": "",
+            "integrity_requirement": "high",
+            "max_severity": "critical"
+          },
+          {
+            "asset_identifier": "https://www.mcgriff.com",
+            "asset_type": "URL",
+            "availability_requirement": "high",
+            "confidentiality_requirement": "high",
+            "eligible_for_bounty": false,
+            "eligible_for_submission": true,
+            "instruction": "",
+            "integrity_requirement": "high",
+            "max_severity": "critical"
+          }
+        ],
+        "out_of_scope": [
+  
+        ]
+      }
     }
 ]
