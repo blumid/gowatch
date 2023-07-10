@@ -546,6 +546,10 @@
       "targets": {
         "in_scope": [
           {
+            "asset_identifier": "https://abbas1.com",
+            "asset_type": "URL"
+          },
+          {
             "asset_identifier": "https://secure.gotapco.com",
             "asset_type": "URL",
             "availability_requirement": "high",
@@ -577,6 +581,10 @@
             "instruction": "",
             "integrity_requirement": "high",
             "max_severity": "critical"
+          },
+          {
+            "asset_identifier": "https://abbas2.com",
+            "asset_type": "URL"
           }
         ],
         "out_of_scope": [

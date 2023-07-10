@@ -42,10 +42,12 @@ func process() {
 		fmt.Println("err2 is: ", err2)
 	}
 
-	for k, v := range temp {
-		fmt.Println("program ", k+1, " :", v.Name)
+	for _, v := range temp {
 		filter := bson.M{"name": v.Name}
 		if db.FindProgram(filter) {
+			db.UpdateArray(v.Name, v.Target.InScope)
+			// we call UpdateArray() ? function to get new things:
+
 			continue
 		} else {
 

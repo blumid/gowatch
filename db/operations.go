@@ -50,7 +50,6 @@ func FindProgram(filter interface{}) bool {
 		return false
 	}
 	if count > 0 {
-		fmt.Println("there is! ")
 		return true
 	}
 	return false
@@ -60,34 +59,41 @@ func CheckScope() {
 
 }
 
-func Updated() interface{} {
+func UpdateArray(name string, array []structure.InScope) interface{} {
+
 	// Define the search criteria
-	filter := bson.M{"_id": "document_id"}
+	filter := bson.M{"name": name}
 
 	// Define the update
-	update := bson.M{"$addToSet": bson.M{"myArrayField": bson.M{"$each": []string{"new_item1", "new_item2"}}}}
+	update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": array}}}
 
 	// Execute the update
 	result, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("modifiedcount is :", result.ModifiedCount)
 	// Retrieve the added items
-	projection := bson.M{"myArrayField": bson.M{"$slice": bson.A{-result.ModifiedCount, result.ModifiedCount}}}
+	projection := bson.M{"target.inscope": bson.M{"$slice": 2}}
 	cursor, err := collection.Find(context.Background(), filter, options.Find().SetProjection(projection))
 	if err != nil {
 		panic(err)
 	}
 
+	type document struct {
+		InScope []structure.InScope `bson:"target.inscope[]"`
+	}
 	// Iterate over the results and print out the added items
 	for cursor.Next(context.Background()) {
-		var document bson.M
-		err := cursor.Decode(&document)
+		var doc document
+
+		err := cursor.Decode(&doc)
+		fmt.Println("document is: ", doc)
 		if err != nil {
 			panic(err)
 		}
-		addedItems := document["myArrayField"].([]interface{})[:result.ModifiedCount]
-		fmt.Println("Added items:", addedItems)
+		// addedItems := document["target.inscope"]
+		// fmt.Println("Added items:", addedItems)
 	}
 
 	return ""
