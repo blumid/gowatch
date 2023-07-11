@@ -74,26 +74,23 @@ func UpdateArray(name string, array []structure.InScope) interface{} {
 	}
 	fmt.Println("modifiedcount is :", result.ModifiedCount)
 	// Retrieve the added items
-	projection := bson.M{"target.inscope": bson.M{"$slice": 2}}
+	projection := bson.M{"name": 1, "target.inscope": bson.M{"$slice": -result.ModifiedCount}}
 	cursor, err := collection.Find(context.Background(), filter, options.Find().SetProjection(projection))
 	if err != nil {
 		panic(err)
 	}
 
-	type document struct {
-		InScope []structure.InScope `bson:"target.inscope[]"`
-	}
 	// Iterate over the results and print out the added items
 	for cursor.Next(context.Background()) {
-		var doc document
+		var doc bson.M
 
 		err := cursor.Decode(&doc)
+
 		fmt.Println("document is: ", doc)
 		if err != nil {
 			panic(err)
 		}
-		// addedItems := document["target.inscope"]
-		// fmt.Println("Added items:", addedItems)
+
 	}
 
 	return ""
