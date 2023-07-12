@@ -3,12 +3,13 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/blumid/gowatch/structure"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func AddProgram(program *structure.Program) error {
@@ -67,31 +68,64 @@ func UpdateArray(name string, array []structure.InScope) interface{} {
 	// Define the update
 	update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": array}}}
 
+	// arrayFilter := bson.D{{"elem.assettype", bson.E{"$eq", "URL"}}}
+	// opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: []interface{}{arrayFilter}})
+
 	// Execute the update
-	result, err := collection.UpdateOne(context.Background(), filter, update)
+	_, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		panic(err)
-	}
-	fmt.Println("modifiedcount is :", result.ModifiedCount)
-	// Retrieve the added items
-	projection := bson.M{"name": 1, "target.inscope": bson.M{"$slice": -result.ModifiedCount}}
-	cursor, err := collection.Find(context.Background(), filter, options.Find().SetProjection(projection))
-	if err != nil {
-		panic(err)
-	}
-
-	// Iterate over the results and print out the added items
-	for cursor.Next(context.Background()) {
-		var doc bson.M
-
-		err := cursor.Decode(&doc)
-
-		fmt.Println("document is: ", doc)
-		if err != nil {
-			panic(err)
-		}
-
 	}
 
 	return ""
+}
+
+func FandU(name string, array []structure.InScope) {
+
+	/*
+		Find program
+			- if it already exsits find get list
+			- make diff between that and db
+
+			- if not add it to db.
+	*/
+
+	// Find
+	// filter := bson.M{"name": name}
+
+	// creating stages
+	matchStage := bson.D{{Key: "$match", Value: bson.D{{Key: "name", Value: name}}}}
+	projection := bson.D{{Key: "$project", Value: bson.M{
+		"in": bson.M{
+			"$filter": bson.M{
+				"input": "$target.inscope",
+				"as":    "elem",
+				"cond":  bson.M{"$in": []interface{}{"$$elem.assettype", bson.A{"URL", "CIDR"}}},
+			},
+		},
+		"name": 1,
+		"_id":  0},
+	},
+	}
+
+	pipeline := mongo.Pipeline{matchStage, projection}
+
+	cursor, err := collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		log.Fatal("err1: ", err)
+	}
+
+	type result struct {
+		Inscope []structure.InScope `bson:"in,omitempty" json:"in,omitempty"`
+		Name    string              `bson:"name,omitempty" json:"name,omitempty"`
+	}
+
+	for cursor.Next(context.Background()) {
+		var doc result
+		if err := cursor.Decode(&doc); err != nil {
+			log.Fatal("err2: ", err)
+		}
+		fmt.Println("doc :", doc.Inscope)
+	}
+
 }

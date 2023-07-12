@@ -3,12 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+
 	"os"
 
 	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/structure"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
@@ -43,19 +42,22 @@ func process() {
 	}
 
 	for _, v := range temp {
-		filter := bson.M{"name": v.Name}
-		if db.FindProgram(filter) {
-			db.UpdateArray(v.Name, v.Target.InScope)
-			// we call UpdateArray() ? function to get new things:
 
-			continue
-		} else {
+		db.FandU(v.Name, v.Target.InScope)
+		/*
+			if db.FindProgram(filter) {
+				db.UpdateArray(v.Name, v.Target.InScope)
+				// we call UpdateArray() ? function to get new things:
 
-			err := db.AddProgram(&v)
-			if err != nil {
-				log.Fatal("process - adding to db: ", err)
+				continue
+			} else {
+
+				err := db.AddProgram(&v)
+				if err != nil {
+					log.Fatal("process - adding to db: ", err)
+				}
 			}
-		}
+		*/
 	}
 
 }
