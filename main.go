@@ -43,7 +43,14 @@ func process() {
 
 	for _, v := range temp {
 
-		db.FandU(v.Name, v.Target.InScope)
+		res := db.FandU(v.Name, v.Target.InScope)
+		fmt.Println("res is :", res)
+		if !res {
+			if err := db.AddProgram(&v); err != nil {
+				fmt.Println("new one add: ", v.Name)
+			}
+
+		}
 		/*
 			if db.FindProgram(filter) {
 				db.UpdateArray(v.Name, v.Target.InScope)

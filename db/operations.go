@@ -14,7 +14,7 @@ import (
 
 func AddProgram(program *structure.Program) error {
 	program.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
-	// program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 	data, _ := bson.Marshal(program)
 
 	_, err := collection.InsertOne(ctx, data)
@@ -24,77 +24,19 @@ func AddProgram(program *structure.Program) error {
 	return nil
 }
 
-/*
-func UpdateProgram(program *structure.Program) (*mongo.UpdateResult, error) {
-	program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
-
-	//if the document not exist this item cause to add.
-	options := options.Update().SetUpsert(true)
-
-	filter := bson.M{"name": program.Name}
-
-	update, _ := bson.Marshal(program)
-	result, err := collection.UpdateOne(ctx, filter, update, options)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-*/
-
-func FindProgram(filter interface{}) bool {
-
-	count, err := collection.CountDocuments(ctx, filter)
-	if err != nil {
-		fmt.Println("FindProgram-err: ", err)
-		return false
-	}
-	if count > 0 {
-		return true
-	}
-	return false
-}
-
-func CheckScope() {
-
-}
-
-func UpdateArray(name string, array []structure.InScope) interface{} {
-
-	// Define the search criteria
-	filter := bson.M{"name": name}
-
-	// Define the update
-	update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": array}}}
-
-	// arrayFilter := bson.D{{"elem.assettype", bson.E{"$eq", "URL"}}}
-	// opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: []interface{}{arrayFilter}})
-
-	// Execute the update
-	_, err := collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		panic(err)
-	}
-
-	return ""
-}
-
-func FandU(name string, array []structure.InScope) {
+func FandU(name string, array []structure.InScope) bool {
 
 	/*
 		Find program
 			- if it already exsits find get list
 			- make diff between that and db
-
 			- if not add it to db.
 	*/
 
-	// Find
-	// filter := bson.M{"name": name}
-
 	// creating stages
 	matchStage := bson.D{{Key: "$match", Value: bson.D{{Key: "name", Value: name}}}}
+
+	// just comment the projection temparially:
 	projection := bson.D{{Key: "$project", Value: bson.M{
 		"in": bson.M{
 			"$filter": bson.M{
@@ -116,16 +58,45 @@ func FandU(name string, array []structure.InScope) {
 	}
 
 	type result struct {
-		Inscope []structure.InScope `bson:"in,omitempty" json:"in,omitempty"`
-		Name    string              `bson:"name,omitempty" json:"name,omitempty"`
+		Inscopes []structure.InScope `bson:"in,omitempty" json:"in,omitempty"`
+		Name     string              `bson:"name,omitempty" json:"name,omitempty"`
 	}
+	defer cursor.Close(context.TODO())
+
+	var has bool = false
 
 	for cursor.Next(context.Background()) {
-		var doc result
-		if err := cursor.Decode(&doc); err != nil {
+
+		has = true
+		var res result
+		if err := cursor.Decode(&res); err != nil {
 			log.Fatal("err2: ", err)
 		}
-		fmt.Println("doc :", doc.Inscope)
+		diff := scopeDifference(array, res.Inscopes)
+
+		// update using this diff thing:
+		update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
+		filter := bson.M{"name": name}
+		collection.UpdateOne(context.Background(), filter, update)
+		fmt.Println("diff is: ", diff)
+
+		// fmt.Println("doc :", res.Inscopes)
+	}
+	return has
+}
+
+func scopeDifference(a, b []structure.InScope) []structure.InScope {
+
+	m := make(map[structure.InScope]bool)
+	for _, item := range b {
+		m[item] = true
 	}
 
+	var diff []structure.InScope
+	for _, item := range a {
+		if (item.AssetType == "CIDR" || item.AssetType == "URL") && !m[item] {
+			diff = append(diff, item)
+		}
+	}
+	return diff
 }

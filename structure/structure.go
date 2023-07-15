@@ -7,10 +7,10 @@ import (
 type Program struct {
 	Name      string `json:"name"`
 	CreatedAt primitive.DateTime
-	// UpdatedAt primitive.DateTime
-	Swag   bool   `json:"offers_swag"`
-	Bounty bool   `json:"offers_bounties"`
-	Target Target `json:"targets"`
+	UpdatedAt primitive.DateTime
+	Swag      bool   `json:"offers_swag"`
+	Bounty    bool   `json:"offers_bounties"`
+	Target    Target `json:"targets"`
 }
 
 type Target struct {
