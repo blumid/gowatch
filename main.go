@@ -3,15 +3,24 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os/signal"
+	"syscall"
 
 	"os"
 
 	"github.com/blumid/gowatch/db"
+	"github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
 )
 
 func main() {
+	// connect discord bot:
+	discord.Connect()
 
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-sigchan
+	fmt.Println("Received signal:", sig)
 	// I just commented this part to test with local file:
 
 	// res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
@@ -29,6 +38,7 @@ func main() {
 }
 
 func process() {
+
 	file, err := os.ReadFile("temp.json")
 
 	if err != nil {
@@ -44,27 +54,13 @@ func process() {
 	for _, v := range temp {
 
 		res := db.FandU(v.Name, v.Target.InScope)
-		fmt.Println("res is :", res)
 		if !res {
 			if err := db.AddProgram(&v); err != nil {
 				fmt.Println("new one add: ", v.Name)
 			}
 
 		}
-		/*
-			if db.FindProgram(filter) {
-				db.UpdateArray(v.Name, v.Target.InScope)
-				// we call UpdateArray() ? function to get new things:
 
-				continue
-			} else {
-
-				err := db.AddProgram(&v)
-				if err != nil {
-					log.Fatal("process - adding to db: ", err)
-				}
-			}
-		*/
 	}
 
 }

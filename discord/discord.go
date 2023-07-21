@@ -10,7 +10,6 @@ import (
 )
 
 func getEnv(key string) string {
-	fmt.Println("key is: ", key)
 	return os.Getenv(key)
 }
 func Annoy(a string) {
@@ -20,13 +19,12 @@ func Annoy(a string) {
 }
 
 func Connect() {
-	dg, err1 := discordgo.New("Bot " + "<my bot token>")
+	dg, err1 := discordgo.New("Bot " + getEnv("Bot_Token"))
 	if err1 != nil {
 		log.Fatal("discord.go - Connect() :", err1)
 	}
-	dg.AddHandler(func() {
-
-	})
+	dg.AddHandler(messageHandler)
+	fmt.Println("handler added.")
 
 	err2 := dg.Open()
 	if err2 != nil {
@@ -36,8 +34,18 @@ func Connect() {
 
 func init() {
 
-	err1 := godotenv.Load("../.env")
+	err1 := godotenv.Load(".env")
 	if err1 != nil {
 		log.Fatal("discord.go - init() :", err1)
+	}
+}
+
+func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	fmt.Println(m.Content)
+	fmt.Println(m.ChannelID)
+	switch m.Content {
+	case "fuck":
+		s.ChannelMessageSend("1130071729067261972", "fuck yourself!")
+
 	}
 }

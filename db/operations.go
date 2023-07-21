@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -78,7 +77,7 @@ func FandU(name string, array []structure.InScope) bool {
 		update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
 		filter := bson.M{"name": name}
 		collection.UpdateOne(context.Background(), filter, update)
-		fmt.Println("diff is: ", diff)
+		// fmt.Println("diff is: ", diff)
 
 		// fmt.Println("doc :", res.Inscopes)
 	}
