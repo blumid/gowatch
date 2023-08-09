@@ -16,7 +16,7 @@ func AddProgram(program *structure.Program) error {
 	program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 	data, _ := bson.Marshal(program)
 
-	_, err := collection.InsertOne(ctx, data)
+	_, err := collection_program.InsertOne(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,6 @@ func FandU(name string, array []structure.InScope) bool {
 
 	// creating stages
 	matchStage := bson.D{{Key: "$match", Value: bson.D{{Key: "name", Value: name}}}}
-
-	// just comment the projection temparially:
 	projection := bson.D{{Key: "$project", Value: bson.M{
 		"in": bson.M{
 			"$filter": bson.M{
@@ -51,7 +49,7 @@ func FandU(name string, array []structure.InScope) bool {
 
 	pipeline := mongo.Pipeline{matchStage, projection}
 
-	cursor, err := collection.Aggregate(context.Background(), pipeline)
+	cursor, err := collection_program.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		log.Fatal("err1: ", err)
 	}
@@ -76,7 +74,7 @@ func FandU(name string, array []structure.InScope) bool {
 		// update using this diff thing:
 		update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
 		filter := bson.M{"name": name}
-		collection.UpdateOne(context.Background(), filter, update)
+		collection_program.UpdateOne(context.Background(), filter, update)
 		// fmt.Println("diff is: ", diff)
 
 		// fmt.Println("doc :", res.Inscopes)
@@ -98,4 +96,15 @@ func scopeDifference(a, b []structure.InScope) []structure.InScope {
 		}
 	}
 	return diff
+}
+
+func AddSub(domain *structure.Domain) error {
+	data, _ := bson.Marshal(domain)
+
+	_, err := collection_domain.InsertOne(ctx, data)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

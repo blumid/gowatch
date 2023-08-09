@@ -27,3 +27,11 @@ type OutScope struct {
 	AssetIdentifier string `json:"asset_identifier"`
 	AssetType       string `json:"asset_type"` //CIDR,URL
 }
+
+type Domain struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	Name      string             `bson:"name"`
+	Final     []string           `bson:"subs,omitempty"`
+	Hidden    []string           `bson:"hidden,omitempty"`
+	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
+}

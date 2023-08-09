@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection *mongo.Collection
+var collection_program, collection_domain *mongo.Collection
 var ctx = context.TODO()
 
 func init() {
@@ -23,5 +23,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	collection = client.Database("gowatch").Collection("programs")
+	collection_program = client.Database("gowatch").Collection("programs")
+	collection_domain = client.Database("gowatch").Collection("domains")
 }
