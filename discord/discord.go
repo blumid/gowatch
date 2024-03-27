@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/blumid/gowatch/structure"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
@@ -19,6 +21,9 @@ func Annoy(a string) {
 }
 
 func Connect() {
+
+	//run download github file at a specific time
+
 	dg, err1 := discordgo.New("Bot " + getEnv("Bot_Token"))
 	if err1 != nil {
 		log.Fatal("discord.go - Connect() :", err1)
@@ -74,4 +79,34 @@ func replyHandler(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 	case "🕷":
 	}
 
+}
+
+func magnifier() {
+	var domain *structure.Domain
+
+	// run gosub
+
+	// get directory and run addsub for each domain
+
+	sub := &structure.Sub{}
+	domain.Subs = append(domain.Subs, *sub)
+
+	// call db.AddSub()
+
+	//
+}
+
+func timer() {
+	/*
+		set timer()
+	*/
+	now := time.Now()
+
+	year, month, day := now.Year(), now.Month(), now.Day()
+
+	desiredTime := time.Date(year, month, day, 12, 0, 0, 0, time.Local)
+
+	duration := desiredTime.Sub(now)
+
+	fmt.Println(duration)
 }

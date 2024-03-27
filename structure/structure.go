@@ -31,7 +31,11 @@ type OutScope struct {
 type Domain struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Name      string             `bson:"name"`
-	Final     []string           `bson:"subs,omitempty"`
-	Hidden    []string           `bson:"hidden,omitempty"`
+	Subs      []Sub              `bson:"subs,omitempty"`
 	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
+}
+
+type Sub struct {
+	Name   string
+	Hidden bool
 }

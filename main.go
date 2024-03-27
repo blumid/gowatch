@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 
@@ -21,18 +24,7 @@ func main() {
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigchan
 	fmt.Println("Received signal:", sig)
-	// I just commented this part to test with local file:
 
-	// res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// defer res.Body.Close()
-	// _, err2 := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	log.Fatal(err2)
-	// }
 	process()
 
 }
@@ -63,4 +55,17 @@ func process() {
 
 	}
 
+}
+
+func download() {
+	res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+	_, err2 := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err2)
+	}
 }
