@@ -14,13 +14,14 @@ type Program struct {
 }
 
 type Target struct {
-	InScope  []InScope `json:"in_scope"`
-	OutScope []InScope `json:"out_of_scope"`
+	InScope  []InScope  `json:"in_scope"`
+	OutScope []OutScope `json:"out_of_scope"`
 }
 
 type InScope struct {
 	AssetIdentifier string `json:"asset_identifier"`
 	AssetType       string `json:"asset_type"` //CIDR,URL
+	// Eligible        bool   `json:"eligible_for_bounty"`
 }
 
 type OutScope struct {

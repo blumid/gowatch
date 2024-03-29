@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/blumid/gowatch/db"
-	"github.com/blumid/gowatch/discord"
+	// "github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
 )
 
@@ -14,7 +13,7 @@ func Start() {
 
 	/*  --------- initial ----------- */
 	// connect discord bot:
-	discord.Connect()
+	// discord.Connect()
 
 	//download json file
 	file := download()
@@ -48,20 +47,23 @@ func download() []byte {
 
 func parseJson(file *[]byte) {
 	var temp []structure.Program
-	err2 := json.Unmarshal(*file, &temp)
-	if err2 != nil {
-		fmt.Println("err2 is: ", err2)
+	err := json.Unmarshal(*file, &temp)
+	if err != nil {
+		fmt.Println("json Unmarshal- err is: ", err)
+		return
 	}
 
-	for _, v := range temp {
+	for k, v := range temp {
 
-		res := db.FandU(v.Name, v.Target.InScope)
-		if !res {
-			if err := db.AddProgram(&v); err != nil {
-				fmt.Println("new one add: ", v.Name)
-			}
+		fmt.Println("\n", k, v)
 
-		}
+		// res := db.FandU(v.Name, v.Target.InScope)
+		// if !res {
+		// 	if err := db.AddProgram(&v); err != nil {
+		// 		fmt.Println("new one add: ", v.Name)
+		// 	}
+
+		// }
 
 	}
 }

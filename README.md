@@ -4,4 +4,4 @@
 - features:
     - get new programs
     - get new added scopes
-    - notif in discord
+    - notify in discord
