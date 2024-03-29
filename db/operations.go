@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func AddProgram(program *structure.Program) error {
@@ -21,6 +23,52 @@ func AddProgram(program *structure.Program) error {
 		return err
 	}
 	return nil
+}
+
+func GetInScopes(name string) (*structure.Result_1, error) {
+	filter := bson.D{{Key: "name", Value: name}}
+	opts := options.FindOne().SetProjection(bson.D{{Key: "target.inscope", Value: 1}})
+	var res structure.Result_1
+
+	err := collection_program.FindOne(context.Background(), filter, opts).Decode(&res)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func UpdateInScope(id primitive.ObjectID, diff []structure.InScope) bool {
+
+	update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
+	filter := bson.M{"_id": id}
+	_, err := collection_program.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+		return false
+
+	}
+	return true
+}
+
+func ScopeDiff(new, old []structure.InScope) []structure.InScope {
+
+	m := make(map[structure.InScope]bool)
+	for _, item := range old {
+		m[item] = true
+	}
+
+	var diff []structure.InScope
+	for _, item := range new {
+		if (item.AssetType == "CIDR" || item.AssetType == "URL") && !m[item] {
+			diff = append(diff, item)
+		}
+	}
+	return diff
 }
 
 func FandU(name string, array []structure.InScope) bool {
@@ -69,7 +117,7 @@ func FandU(name string, array []structure.InScope) bool {
 		if err := cursor.Decode(&res); err != nil {
 			log.Fatal("err2: ", err)
 		}
-		diff := scopeDifference(array, res.Inscopes)
+		diff := ScopeDiff(array, res.Inscopes)
 
 		// update using this diff thing:
 		update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
@@ -80,22 +128,6 @@ func FandU(name string, array []structure.InScope) bool {
 		// fmt.Println("doc :", res.Inscopes)
 	}
 	return has
-}
-
-func scopeDifference(a, b []structure.InScope) []structure.InScope {
-
-	m := make(map[structure.InScope]bool)
-	for _, item := range b {
-		m[item] = true
-	}
-
-	var diff []structure.InScope
-	for _, item := range a {
-		if (item.AssetType == "CIDR" || item.AssetType == "URL") && !m[item] {
-			diff = append(diff, item)
-		}
-	}
-	return diff
 }
 
 func AddSub(domain *structure.Domain) error {

@@ -3,9 +3,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	// "github.com/blumid/gowatch/discord"
+	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/structure"
 )
 
@@ -53,9 +55,28 @@ func parseJson(file *[]byte) {
 		return
 	}
 
-	for k, v := range temp {
+	for _, v := range temp {
 
-		fmt.Println("\n", k, v)
+		// fmt.Println("\n", k, v)
+
+		// db.GetInScopes(v.Name, v.Target.InScope)
+		scopes, err := db.GetInScopes(v.Name)
+		if err != nil {
+			log.Fatal(err)
+			continue
+		}
+		if scopes != nil {
+			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
+			if diff != nil {
+				fmt.Println("diff is: ", v.Name, ": ", diff)
+				//update db
+			} else {
+				fmt.Println(v.Name, ": ", "no diff")
+				//return nothing
+			}
+		} else {
+			fmt.Println("need to add program: ", v.Name)
+		}
 
 		// res := db.FandU(v.Name, v.Target.InScope)
 		// if !res {
@@ -63,6 +84,8 @@ func parseJson(file *[]byte) {
 		// 		fmt.Println("new one add: ", v.Name)
 		// 	}
 
+		// } else {
+		// 	continue
 		// }
 
 	}

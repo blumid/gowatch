@@ -12,7 +12,9 @@ var collection_program, collection_domain *mongo.Collection
 var ctx = context.TODO()
 
 func init() {
+	//connection string
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
@@ -24,5 +26,5 @@ func init() {
 	}
 
 	collection_program = client.Database("gowatch").Collection("programs")
-	collection_domain = client.Database("gowatch").Collection("domains")
+	// collection_domain = client.Database("gowatch").Collection("domains")
 }
