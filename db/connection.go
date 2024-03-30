@@ -31,9 +31,7 @@ func init() {
 	}
 
 	//check db existence?
-	if existDB(client, "gowatch") {
-		DBExists = true
-	}
+	DBExists = existDB(client, "gowatch")
 
 	collection_program = client.Database("gowatch").Collection("programs")
 

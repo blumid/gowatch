@@ -57,9 +57,6 @@ func parseJson(file *[]byte) {
 
 	for _, v := range temp {
 
-		// fmt.Println("\n", k, v)
-
-		// db.GetInScopes(v.Name, v.Target.InScope)
 		scopes, err := db.GetInScopes(v.Name)
 		if err != nil {
 			log.Fatal(err)
@@ -69,24 +66,19 @@ func parseJson(file *[]byte) {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
 				fmt.Println("diff is: ", v.Name, ": ", diff)
-				//update db
+				//notify in discord diff
+				db.UpdateInScopes(scopes.ID, diff)
 			} else {
 				fmt.Println(v.Name, ": ", "no diff")
-				//return nothing
+				continue
 			}
 		} else {
-			fmt.Println("need to add program: ", v.Name)
+			err := db.AddProgram(&v)
+			fmt.Println("added new one")
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
-
-		// res := db.FandU(v.Name, v.Target.InScope)
-		// if !res {
-		// 	if err := db.AddProgram(&v); err != nil {
-		// 		fmt.Println("new one add: ", v.Name)
-		// 	}
-
-		// } else {
-		// 	continue
-		// }
 
 	}
 }

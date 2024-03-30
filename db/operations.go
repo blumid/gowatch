@@ -42,7 +42,7 @@ func GetInScopes(name string) (*structure.Result_1, error) {
 	return &res, nil
 }
 
-func UpdateInScope(id primitive.ObjectID, diff []structure.InScope) bool {
+func UpdateInScopes(id primitive.ObjectID, diff []structure.InScope) bool {
 
 	update := bson.M{"$addToSet": bson.M{"target.inscope": bson.M{"$each": diff}}, "$set": bson.M{"updatedat": primitive.NewDateTimeFromTime(time.Now())}}
 	filter := bson.M{"_id": id}
