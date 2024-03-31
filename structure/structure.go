@@ -11,6 +11,8 @@ type Program struct {
 	Swag      bool   `json:"offers_swag"`
 	Bounty    bool   `json:"offers_bounties"`
 	Target    Target `json:"targets"`
+	Url       string `json:"url"`
+	Website   string `json:"website"`
 }
 
 type Target struct {

@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	// "github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/db"
+	"github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
 )
 
@@ -15,7 +15,8 @@ func Start() {
 
 	/*  --------- initial ----------- */
 	// connect discord bot:
-	// discord.Connect()
+	discord.Connect()
+	// discord.NotifyNewAsset("fuck pussy father")
 
 	//download json file
 	file := download()
@@ -66,18 +67,19 @@ func parseJson(file *[]byte) {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
 				fmt.Println("diff is: ", v.Name, ": ", diff)
-				//notify in discord diff
-				db.UpdateInScopes(scopes.ID, diff)
+				// db.UpdateInScopes(scopes.ID, diff)
+				discord.NotifyNewAsset(&v, diff)
 			} else {
 				fmt.Println(v.Name, ": ", "no diff")
 				continue
 			}
 		} else {
-			err := db.AddProgram(&v)
-			fmt.Println("added new one")
-			if err != nil {
-				log.Fatal(err)
-			}
+			// err := db.AddProgram(&v)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// 	continue
+			// }
+			discord.NotifyNewProgram(&v)
 		}
 
 	}

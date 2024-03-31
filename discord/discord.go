@@ -8,92 +8,75 @@ import (
 
 	"github.com/blumid/gowatch/structure"
 	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 var dg *discordgo.Session
 
-func getEnv(key string) string {
-	return os.Getenv(key)
-}
-func Announce(a string) {
-	value := getEnv("")
-	// send message:
-	fmt.Println(value)
-}
-
-func Connect() {
-
-	dg.AddHandler(messageHandler)
-	// fmt.Println("handler added 1.")
-
-	dg.AddHandler(replyHandler)
-	// fmt.Println("handler added 2.")
-
-	err2 := dg.Open()
-	if err2 != nil {
-		log.Fatal("discord.go - Connect() :", err2)
-	}
-}
-
 func init() {
+
+	err1 := godotenv.Load()
+	if err1 != nil {
+		log.Fatal("Error loading .env file:", err1)
+	}
 
 	var err error
 	dg, err = discordgo.New("Bot " + getEnv("Bot_Token"))
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
-
 }
 
-func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	switch m.Content {
-	case "fuck":
-		// s.ChannelMessageSendReply(m.ChannelID, "fucking reply", m.MessageReference)
-		s.ChannelMessageSend(m.ChannelID, "fuck yourself!")
+func getEnv(key string) string {
+	return os.Getenv(key)
+}
 
+func Connect() {
+
+	// dg.AddHandler(messageHandler)
+
+	// dg.AddHandler(replyHandler)
+
+	err2 := dg.Open()
+	if err2 != nil {
+		log.Fatal("discord.go - Connect:", err2)
 	}
-
 }
 
-func replyHandler(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
+// func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+// 	switch m.Content {
+// 	case "fuck":
+// 		// s.ChannelMessageSendReply(m.ChannelID, "fucking reply", m.MessageReference)
+// 		s.ChannelMessageSend(m.ChannelID, "fuck yourself!")
 
-	switch m.Emoji.Name {
-	case "💩":
-		s.ChannelMessageSend(m.ChannelID, "poop yourself 2 ! ")
+// 	}
 
-	case "🔍":
-		ref := discordgo.MessageReference{
-			MessageID: m.MessageID,
-			ChannelID: m.ChannelID,
-			GuildID:   m.GuildID,
-		}
-		s.ChannelMessageSendReply(m.ChannelID, "starting for enum...", &ref)
-		// s.ChannelMessageSend(m.ChannelID, "")
-		// run gosub get final.json file and give to db/operations.go
+// }
 
-	case "📃":
+// func replyHandler(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 
-	case "🕷":
-	}
+// 	switch m.Emoji.Name {
+// 	case "💩":
+// 		s.ChannelMessageSend(m.ChannelID, "poop yourself 2 ! ")
 
-}
+// 	case "🔍":
+// 		ref := discordgo.MessageReference{
+// 			MessageID: m.MessageID,
+// 			ChannelID: m.ChannelID,
+// 			GuildID:   m.GuildID,
+// 		}
+// 		s.ChannelMessageSendReply(m.ChannelID, "starting for enum...", &ref)
+// 		// s.ChannelMessageSend(m.ChannelID, "")
+// 		// run gosub get final.json file and give to db/operations.go
 
-func magnifier() {
-	var domain *structure.Domain
+// 	case "📃":
 
-	// run gosub
+// 	case "🕷":
+// 	}
 
-	// get directory and run addsub for each domain
+// }
 
-	sub := &structure.Sub{}
-	domain.Subs = append(domain.Subs, *sub)
-
-	// call db.AddSub()
-
-	//
-}
-
-func timer() {
+func Timer() {
 	/*
 		set timer()
 	*/
@@ -106,4 +89,40 @@ func timer() {
 	duration := desiredTime.Sub(now)
 
 	fmt.Println(duration)
+}
+
+func NotifyNewProgram(p *structure.Program) bool {
+	cID := getEnv("ChannelId_general")
+	embed := &discordgo.MessageEmbed{
+		Title:       p.Name,
+		URL:         p.Url,
+		Description: "*newProgram*",
+		Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
+		Color:       0xff6666,
+	}
+	dg.ChannelMessageSendEmbed(cID, embed)
+	return true
+}
+
+func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
+	cID := getEnv("ChannelId_general")
+	fields := []*discordgo.MessageEmbedField{}
+	for _, item := range s {
+		temp := discordgo.MessageEmbedField{
+			Name:   item.AssetIdentifier,
+			Value:  item.AssetType,
+			Inline: true}
+		fields = append(fields, &temp)
+	}
+	embed := &discordgo.MessageEmbed{
+		Title:       p.Name,
+		URL:         p.Url,
+		Description: "*newAsset*",
+		Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
+		Color:       0x0080ff,
+		Fields:      fields,
+	}
+	dg.ChannelMessageSendEmbed(cID, embed)
+
+	return true
 }
