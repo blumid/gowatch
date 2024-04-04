@@ -37,12 +37,12 @@ func init() {
 		// Set minimum level to DebugLevel to receive all log entries
 		logrus.InfoLevel,
 		&discordrus.Opts{
-			Username:           "Test Username",
-			Author:             "",                         // Setting this to a non-empty string adds the author text to the message header
-			DisableTimestamp:   false,                      // Setting this to true will disable timestamps from appearing in the footer
-			TimestampFormat:    "Jan 2 15:04:05.00000 MST", // The timestamp takes this format; if it is unset, it will take logrus' default format
-			TimestampLocale:    nil,                        // The timestamp uses this locale; if it is unset, it will use time.Local
-			EnableCustomColors: true,                       // If set to true, the below CustomLevelColors will apply
+			Username:           "captain hook",
+			Author:             "",                   // Setting this to a non-empty string adds the author text to the message header
+			DisableTimestamp:   false,                // Setting this to true will disable timestamps from appearing in the footer
+			TimestampFormat:    "Jan 2 15:04:05 MST", // The timestamp takes this format; if it is unset, it will take logrus' default format
+			TimestampLocale:    nil,                  // The timestamp uses this locale; if it is unset, it will use time.Local
+			EnableCustomColors: true,                 // If set to true, the below CustomLevelColors will apply
 			CustomLevelColors: &discordrus.LevelColors{
 				Trace: 3092790,
 				Debug: 10170623,
@@ -73,16 +73,6 @@ func Open() {
 		logrus.Fatal("discord.Open(): ", err2)
 	}
 }
-
-// func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-// 	switch m.Content {
-// 	case "fuck":
-// 		// s.ChannelMessageSendReply(m.ChannelID, "fucking reply", m.MessageReference)
-// 		s.ChannelMessageSend(m.ChannelID, "fuck yourself!")
-
-// 	}
-
-// }
 
 // func replyHandler(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 
@@ -157,28 +147,3 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 
 	return true
 }
-
-// func SendWebHook(str string) error {
-
-// 	msg := structure.Message{
-// 		Username:  "Log",
-// 		AvatarUrl: "",
-// 		Content:   str,
-// 	}
-// 	url := getEnv("WebHook_URL")
-// 	body := &bytes.Buffer{}
-
-// 	if err := json.NewEncoder(body).Encode(msg); err != nil {
-// 		return err
-// 	}
-
-// 	resp, err := http.Post(url, "application/json", body)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-// 		return fmt.Errorf("error http code (%d)", resp.StatusCode)
-// 	}
-
-// 	return nil
-// }
