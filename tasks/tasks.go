@@ -2,26 +2,43 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"os"
 
 	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
+	logrus "github.com/sirupsen/logrus"
 )
 
 func Start() {
 
 	/*  --------- initial ----------- */
 	// connect discord bot:
-	discord.Connect()
-	// discord.NotifyNewAsset("fuck pussy father")
+	discord.Open()
 
 	//download json file
 	file := download()
-	parseJson(&file)
+	if db.DBExists {
+		task_update_db(&file)
+	} else {
+		task_init(&file)
+	}
 
+}
+func task_init(file *[]byte) bool {
+	var temp []structure.Program
+	err := json.Unmarshal(*file, &temp)
+	if err != nil {
+		logrus.Error("task_init(): ", err)
+		return false
+	}
+	for _, v := range temp {
+		err2 := db.AddProgram(&v)
+		if err2 != nil {
+			logrus.Fatal("task_init(): ", err2)
+		}
+	}
+	return true
 }
 
 func download() []byte {
@@ -31,7 +48,7 @@ func download() []byte {
 	file, err := os.ReadFile("temp.json")
 
 	if err != nil {
-		fmt.Println("err in opening file: ", err)
+		logrus.Error("tasks.download(): ", err)
 		return nil
 	}
 
@@ -48,11 +65,11 @@ func download() []byte {
 	return file
 }
 
-func parseJson(file *[]byte) {
+func task_update_db(file *[]byte) {
 	var temp []structure.Program
 	err := json.Unmarshal(*file, &temp)
 	if err != nil {
-		fmt.Println("json Unmarshal- err is: ", err)
+		logrus.Error("task_update_db(): ", err)
 		return
 	}
 
@@ -60,26 +77,26 @@ func parseJson(file *[]byte) {
 
 		scopes, err := db.GetInScopes(v.Name)
 		if err != nil {
-			log.Fatal(err)
+			logrus.Fatal("task_update_db(): ", err)
 			continue
 		}
 		if scopes != nil {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
-				fmt.Println("diff is: ", v.Name, ": ", diff)
+				logrus.Info(v.Name, ", diff is: ", diff)
 				// db.UpdateInScopes(scopes.ID, diff)
-				discord.NotifyNewAsset(&v, diff)
+				// discord.NotifyNewAsset(&v, diff)
 			} else {
-				fmt.Println(v.Name, ": ", "no diff")
+				logrus.Info(v.Name, ", no diff")
 				continue
 			}
 		} else {
 			// err := db.AddProgram(&v)
 			// if err != nil {
-			// 	log.Fatal(err)
+			// 	logrus.Fatal("task_update_db(): ", err)
 			// 	continue
 			// }
-			discord.NotifyNewProgram(&v)
+			// discord.NotifyNewProgram(&v)
 		}
 
 	}

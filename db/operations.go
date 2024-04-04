@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/blumid/gowatch/structure"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -48,7 +48,7 @@ func UpdateInScopes(id primitive.ObjectID, diff []structure.InScope) bool {
 	filter := bson.M{"_id": id}
 	_, err := collection_program.UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal("UpdateInScopes(): ", err)
 		return false
 
 	}

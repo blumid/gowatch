@@ -47,3 +47,10 @@ type Sub struct {
 	Name   string
 	Hidden bool
 }
+
+type Message struct {
+	Username  string `json:"username,omitempty"`
+	AvatarUrl string `json:"avatar_url,omitempty"`
+	Content   string `json:"content,omitempty"`
+	// Embeds    []Embed `json:"embeds,omitempty"`
+}

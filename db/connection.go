@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"log"
 
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,12 +21,12 @@ func init() {
 	clientOptions := options.Client().ApplyURI(url)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal("db.init(): ", err)
 	}
 
 	err1 := client.Ping(ctx, nil)
 	if err1 != nil {
-		log.Fatal(err1)
+		logrus.Fatal("db.init(): ", err1)
 		return
 	}
 

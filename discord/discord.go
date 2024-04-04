@@ -2,13 +2,14 @@ package discord
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/blumid/gowatch/structure"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	"github.com/kz/discordrus"
+	"github.com/sirupsen/logrus"
 )
 
 var dg *discordgo.Session
@@ -17,21 +18,51 @@ func init() {
 
 	err1 := godotenv.Load()
 	if err1 != nil {
-		log.Fatal("Error loading .env file:", err1)
+		logrus.Fatal("discord.init():", err1)
 	}
 
 	var err error
 	dg, err = discordgo.New("Bot " + getEnv("Bot_Token"))
 	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
+		logrus.Fatal("discord.init():", err)
 	}
+
+	logrus.SetFormatter(&logrus.TextFormatter{})
+	logrus.SetOutput(os.Stderr)
+	logrus.SetLevel(logrus.InfoLevel)
+
+	logrus.AddHook(discordrus.NewHook(
+		// Use environment variable for security reasons
+		getEnv("WebHook_URL"),
+		// Set minimum level to DebugLevel to receive all log entries
+		logrus.InfoLevel,
+		&discordrus.Opts{
+			Username:           "Test Username",
+			Author:             "",                         // Setting this to a non-empty string adds the author text to the message header
+			DisableTimestamp:   false,                      // Setting this to true will disable timestamps from appearing in the footer
+			TimestampFormat:    "Jan 2 15:04:05.00000 MST", // The timestamp takes this format; if it is unset, it will take logrus' default format
+			TimestampLocale:    nil,                        // The timestamp uses this locale; if it is unset, it will use time.Local
+			EnableCustomColors: true,                       // If set to true, the below CustomLevelColors will apply
+			CustomLevelColors: &discordrus.LevelColors{
+				Trace: 3092790,
+				Debug: 10170623,
+				Info:  3581519,
+				Warn:  14327864,
+				Error: 13631488,
+				Panic: 13631488,
+				Fatal: 13631488,
+			},
+			DisableInlineFields: false,
+		},
+	))
+
 }
 
 func getEnv(key string) string {
 	return os.Getenv(key)
 }
 
-func Connect() {
+func Open() {
 
 	// dg.AddHandler(messageHandler)
 
@@ -39,7 +70,7 @@ func Connect() {
 
 	err2 := dg.Open()
 	if err2 != nil {
-		log.Fatal("discord.go - Connect:", err2)
+		logrus.Fatal("discord.Open(): ", err2)
 	}
 }
 
@@ -126,3 +157,28 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 
 	return true
 }
+
+// func SendWebHook(str string) error {
+
+// 	msg := structure.Message{
+// 		Username:  "Log",
+// 		AvatarUrl: "",
+// 		Content:   str,
+// 	}
+// 	url := getEnv("WebHook_URL")
+// 	body := &bytes.Buffer{}
+
+// 	if err := json.NewEncoder(body).Encode(msg); err != nil {
+// 		return err
+// 	}
+
+// 	resp, err := http.Post(url, "application/json", body)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+// 		return fmt.Errorf("error http code (%d)", resp.StatusCode)
+// 	}
+
+// 	return nil
+// }
