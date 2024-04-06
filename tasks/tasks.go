@@ -36,6 +36,8 @@ func task_init(file *[]byte) bool {
 		err2 := db.AddProgram(&v)
 		if err2 != nil {
 			logrus.Fatal("task_init(): ", err2)
+		} else {
+			logrus.Info("db created!")
 		}
 	}
 	return true
