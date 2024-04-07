@@ -4,13 +4,13 @@ go 1.20
 
 require (
 	github.com/joho/godotenv v1.5.1
+	github.com/kz/discordrus v1.3.0
 	go.mongodb.org/mongo-driver v1.12.0
 )
 
 require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/kz/discordrus v1.3.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 )
 
