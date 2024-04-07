@@ -2,7 +2,8 @@ package tasks
 
 import (
 	"encoding/json"
-	"os"
+	"io"
+	"net/http"
 
 	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/discord"
@@ -19,9 +20,12 @@ func Start() {
 	//download json file
 	file := download()
 	if db.DBExists {
-		task_update_db(&file)
+		task_update_db(file)
 	} else {
-		task_init(&file)
+		res := task_init(file)
+		if res {
+			logrus.Info("DB created succesfully!")
+		}
 	}
 
 }
@@ -29,42 +33,41 @@ func task_init(file *[]byte) bool {
 	var temp []structure.Program
 	err := json.Unmarshal(*file, &temp)
 	if err != nil {
-		logrus.Error("task_init(): ", err)
+		logrus.Error("task_init() - unmarshal : ", err)
 		return false
 	}
 	for _, v := range temp {
 		err2 := db.AddProgram(&v)
 		if err2 != nil {
-			logrus.Fatal("task_init(): ", err2)
-		} else {
-			logrus.Info("db created!")
+			logrus.Fatal("task_init() - addProgram : ", err2)
+			continue
 		}
 	}
 	return true
 }
 
-func download() []byte {
+func download() *[]byte {
 
 	//temp:
 
-	file, err := os.ReadFile("temp.json")
+	// file, err := os.ReadFile("temp.json")
 
+	// if err != nil {
+	// 	logrus.Error("tasks.download(): ", err)
+	// 	return nil
+	// }
+
+	res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
 	if err != nil {
-		logrus.Error("tasks.download(): ", err)
-		return nil
+		logrus.Error("tasks.download() - connecting to url: ", err)
 	}
 
-	// res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// defer res.Body.Close()
-	// file, err2 := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	log.Fatal(err2)
-	// }
-	return file
+	defer res.Body.Close()
+	file, err2 := io.ReadAll(res.Body)
+	if err2 != nil {
+		logrus.Error("tasks.download() - reading response body: ", err2)
+	}
+	return &file
 }
 
 func task_update_db(file *[]byte) {
