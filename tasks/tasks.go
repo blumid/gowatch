@@ -50,14 +50,15 @@ func download() *[]byte {
 
 	//temp:
 
-	// file, err := os.ReadFile("temp.json")
+	// file, err := os.ReadFile("hackerone_data.json")
 
 	// if err != nil {
 	// 	logrus.Error("tasks.download(): ", err)
 	// 	return nil
 	// }
+	url := "https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/hackerone_data.json"
 
-	res, err := http.Get("https://github.com/arkadiyt/bounty-targets-data/blob/main/data/hackerone_data.json")
+	res, err := http.Get(url)
 	if err != nil {
 		logrus.Error("tasks.download() - connecting to url: ", err)
 	}
