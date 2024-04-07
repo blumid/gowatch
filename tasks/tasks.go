@@ -90,18 +90,15 @@ func task_update_db(file *[]byte) {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
 				logrus.Info(v.Name, ", diff is: ", diff)
-				// db.UpdateInScopes(scopes.ID, diff)
+				db.UpdateInScopes(scopes.ID, diff)
 				discord.NotifyNewAsset(&v, diff)
-			} else {
-				logrus.Info(v.Name, ", no diff")
-				continue
 			}
 		} else {
-			// err := db.AddProgram(&v)
-			// if err != nil {
-			// 	logrus.Fatal("task_update_db(): ", err)
-			// 	continue
-			// }
+			err := db.AddProgram(&v)
+			if err != nil {
+				logrus.Fatal("task_update_db(): ", err)
+				continue
+			}
 			discord.NotifyNewProgram(&v)
 		}
 
