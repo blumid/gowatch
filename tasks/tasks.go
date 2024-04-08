@@ -103,4 +103,5 @@ func task_update_db(file *[]byte) {
 		}
 
 	}
+	logrus.Info("task_update: done!")
 }
