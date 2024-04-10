@@ -118,8 +118,8 @@ func NotifyNewProgram(p *structure.Program) bool {
 		Title:       p.Name,
 		URL:         p.Url,
 		Description: "*newProgram*",
-		Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
-		Color:       0xff6666,
+		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
+		Color: 0xff6666,
 	}
 	dg.ChannelMessageSendEmbed(cID, embed)
 	return true
@@ -139,9 +139,9 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 		Title:       p.Name,
 		URL:         p.Url,
 		Description: "*newAsset*",
-		Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
-		Color:       0x0080ff,
-		Fields:      fields,
+		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
+		Color:  0x0080ff,
+		Fields: fields,
 	}
 	dg.ChannelMessageSendEmbed(cID, embed)
 
