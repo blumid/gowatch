@@ -127,7 +127,24 @@ func NotifyNewProgram(p *structure.Program) bool {
 
 func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 	cID := getEnv("ChannelId_general")
+
+	// thumbnail
+	thumb := discordgo.MessageEmbedThumbnail{
+		Width:  80,
+		Height: 80,
+	}
+	switch p.Owner {
+	case "hackerone":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/hackerone.ico"
+	case "bugcrowd":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/bugcrowd.ico"
+	case "intigriti":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/intigriti.ico"
+	}
+
+	// fields
 	fields := []*discordgo.MessageEmbedField{}
+
 	for _, item := range s {
 		temp := discordgo.MessageEmbedField{
 			Name:   item.Asset,
@@ -140,8 +157,9 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 		URL:         p.Url,
 		Description: "*newAsset*",
 		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
-		Color:  0x0080ff,
-		Fields: fields,
+		Color:     0x0080ff,
+		Fields:    fields,
+		Thumbnail: &thumb,
 	}
 	dg.ChannelMessageSendEmbed(cID, embed)
 

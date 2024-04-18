@@ -7,10 +7,11 @@ import (
 // ------- hackerOne ----------
 type Program struct {
 	Name      string `json:"name"`
-	CreatedAt primitive.DateTime
-	UpdatedAt primitive.DateTime
 	Url       string `json:"url"`
 	Target    Target `json:"targets"`
+	Owner     string
+	CreatedAt primitive.DateTime
+	UpdatedAt primitive.DateTime
 }
 
 type Target struct {
@@ -19,56 +20,14 @@ type Target struct {
 }
 
 type InScope struct {
-	Asset string `json:"asset_identifier"`
-	Type  string `json:"asset_type"` //CIDR,URL,WILD
+	Asset string `json:"asset"`
+	Type  string `json:"type"` //CIDR,URL,WILDCARD,API
 }
 
 type OutScope struct {
-	Asset     string `json:"asset_identifier"`
-	AssetType string `json:"asset_type"` //CIDR,URL,WILD
+	Asset string `json:"asset"`
+	Type  string `json:"type"` //CIDR,URL,WILDCARD,API
 }
-
-// ------------------------------
-
-// -------- Intigriti -----------
-
-type Program_I struct {
-	Name      string `json:"name"`
-	CreatedAt primitive.DateTime
-	UpdatedAt primitive.DateTime
-	Url       string `json:"url"`
-	Target    struct {
-		InScope  []I
-		OutScope []I
-	} `json:"targets"`
-}
-
-type I struct {
-	Asset string `json:"endpoint"`
-	Type  string `json:"type"` //CIDR,URL,WILD
-}
-
-// ------------------------------
-
-// -------- BugCrowd ------------
-
-type Program_B struct {
-	Name      string `json:"name"`
-	CreatedAt primitive.DateTime
-	UpdatedAt primitive.DateTime
-	Url       string `json:"url"`
-	Target    struct {
-		InScope  []B
-		OutScope []B
-	} `json:"targets"`
-}
-
-type B struct {
-	Asset string `json:"target"`
-	Type  string `json:"type"` //CIDR,URL,WILD
-}
-
-// ------------------------------
 
 type Result_1 struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
