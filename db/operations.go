@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/blumid/gowatch/structure"
@@ -65,9 +66,15 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 
 	var diff []structure.InScope
 	for _, item := range new {
-		if (item.Type == "CIDR" || item.Type == "URL" || item.Type == "WILDCARD") && !m[item] {
-			diff = append(diff, item)
+		for _, el := range []string{"url", "wildcard", "cidr", "api"} {
+			if el == strings.ToLower(item.Type) {
+				diff = append(diff, item)
+				break
+			}
 		}
+		// if (strings.ToLower(item.Type) == "cidr" || item.Type == "URL" || item.Type == "WILDCARD") && !m[item] {
+		// 	diff = append(diff, item)
+		// }
 	}
 	return diff
 }
