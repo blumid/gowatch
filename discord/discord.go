@@ -130,8 +130,8 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 	fields := []*discordgo.MessageEmbedField{}
 	for _, item := range s {
 		temp := discordgo.MessageEmbedField{
-			Name:   item.AssetIdentifier,
-			Value:  item.AssetType,
+			Name:   item.Asset,
+			Value:  item.Type,
 			Inline: true}
 		fields = append(fields, &temp)
 	}

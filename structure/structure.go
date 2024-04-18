@@ -4,15 +4,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// ------- hackerOne ----------
 type Program struct {
 	Name      string `json:"name"`
 	CreatedAt primitive.DateTime
 	UpdatedAt primitive.DateTime
-	Swag      bool   `json:"offers_swag"`
-	Bounty    bool   `json:"offers_bounties"`
-	Target    Target `json:"targets"`
 	Url       string `json:"url"`
-	Website   string `json:"website"`
+	Target    Target `json:"targets"`
 }
 
 type Target struct {
@@ -21,15 +19,56 @@ type Target struct {
 }
 
 type InScope struct {
-	AssetIdentifier string `json:"asset_identifier"`
-	AssetType       string `json:"asset_type"` //CIDR,URL
-	// Eligible        bool   `json:"eligible_for_bounty"`
+	Asset string `json:"asset_identifier"`
+	Type  string `json:"asset_type"` //CIDR,URL,WILD
 }
 
 type OutScope struct {
-	AssetIdentifier string `json:"asset_identifier"`
-	AssetType       string `json:"asset_type"` //CIDR,URL
+	Asset     string `json:"asset_identifier"`
+	AssetType string `json:"asset_type"` //CIDR,URL,WILD
 }
+
+// ------------------------------
+
+// -------- Intigriti -----------
+
+type Program_I struct {
+	Name      string `json:"name"`
+	CreatedAt primitive.DateTime
+	UpdatedAt primitive.DateTime
+	Url       string `json:"url"`
+	Target    struct {
+		InScope  []I
+		OutScope []I
+	} `json:"targets"`
+}
+
+type I struct {
+	Asset string `json:"endpoint"`
+	Type  string `json:"type"` //CIDR,URL,WILD
+}
+
+// ------------------------------
+
+// -------- BugCrowd ------------
+
+type Program_B struct {
+	Name      string `json:"name"`
+	CreatedAt primitive.DateTime
+	UpdatedAt primitive.DateTime
+	Url       string `json:"url"`
+	Target    struct {
+		InScope  []B
+		OutScope []B
+	} `json:"targets"`
+}
+
+type B struct {
+	Asset string `json:"target"`
+	Type  string `json:"type"` //CIDR,URL,WILD
+}
+
+// ------------------------------
 
 type Result_1 struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`

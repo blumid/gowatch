@@ -109,3 +109,24 @@ func task_update_db(file *[]byte) {
 	}
 	logrus.Info("task_update: done!")
 }
+
+func Unmarshal(file *[]byte, own string) {
+
+	var temp interface{}
+	switch own {
+	case "hackerone":
+		temp = []structure.Program{}
+	case "Bugcrowd":
+		temp = []structure.Program_B{}
+	case "intigriti":
+		temp = []structure.Program_I{}
+
+	}
+
+	err := json.Unmarshal(*file, &temp)
+	if err != nil {
+		// logrus.Error("task_update_db(): ", err)
+		return
+	}
+
+}

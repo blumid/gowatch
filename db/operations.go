@@ -64,7 +64,7 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 
 	var diff []structure.InScope
 	for _, item := range new {
-		if (item.AssetType == "CIDR" || item.AssetType == "URL" || item.AssetType == "WILDCARD") && !m[item] {
+		if (item.Type == "CIDR" || item.Type == "URL" || item.Type == "WILDCARD") && !m[item] {
 			diff = append(diff, item)
 		}
 	}
