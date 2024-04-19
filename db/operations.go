@@ -66,15 +66,15 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 
 	var diff []structure.InScope
 	for _, item := range new {
-		for _, el := range []string{"url", "wildcard", "cidr", "api"} {
-			if el == strings.ToLower(item.Type) {
-				diff = append(diff, item)
-				break
-			}
-		}
-		// if (strings.ToLower(item.Type) == "cidr" || item.Type == "URL" || item.Type == "WILDCARD") && !m[item] {
-		// 	diff = append(diff, item)
+		// for _, el := range []string{"url", "wildcard", "cidr", "api"} {
+		// 	if el == strings.ToLower(item.Type) {
+		// 		diff = append(diff, item)
+		// 		break
+		// 	}
 		// }
+		if (strings.ToLower(item.Type) == "url" || strings.ToLower(item.Type) == "wildcard" || strings.ToLower(item.Type) == "cidr" || strings.ToLower(item.Type) == "api") && !m[item] {
+			diff = append(diff, item)
+		}
 	}
 	return diff
 }
