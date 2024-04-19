@@ -113,6 +113,22 @@ func Timer() {
 }
 
 func NotifyNewProgram(p *structure.Program) bool {
+
+		// thumbnail
+		thumb := discordgo.MessageEmbedThumbnail{
+			Width:  80,
+			Height: 80,
+		}
+		switch p.Owner {
+		case "hackerone":
+			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/hackerone.ico"
+		case "bugcrowd":
+			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/bugcrowd.ico"
+		case "intigriti":
+			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/intigriti.ico"
+		}
+	
+
 	cID := getEnv("ChannelId_general")
 	embed := &discordgo.MessageEmbed{
 		Title:       p.Name,
@@ -120,6 +136,7 @@ func NotifyNewProgram(p *structure.Program) bool {
 		Description: "*newProgram*",
 		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
 		Color: 0xff6666,
+		Thumbnail: &thumb
 	}
 	dg.ChannelMessageSendEmbed(cID, embed)
 	return true
