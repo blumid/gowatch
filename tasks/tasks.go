@@ -33,8 +33,8 @@ func Start() {
 			}
 		}
 	}
-
 }
+
 func task_init(file *[]byte, owner string) bool {
 	var temp []structure.Program
 	err := json.Unmarshal(*file, &temp)
