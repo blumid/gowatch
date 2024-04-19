@@ -136,7 +136,7 @@ func NotifyNewProgram(p *structure.Program) bool {
 		Description: "*newProgram*",
 		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
 		Color: 0xff6666,
-		Thumbnail: &thumb
+		Thumbnail: &thumb,
 	}
 	dg.ChannelMessageSendEmbed(cID, embed)
 	return true
