@@ -14,10 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func AddProgram(program *structure.Program, owner string) error {
+func AddProgram(program *structure.Program) error {
 	program.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
-	program.Owner = owner
 	data, _ := bson.Marshal(program)
 
 	_, err := collection_program.InsertOne(ctx, data)

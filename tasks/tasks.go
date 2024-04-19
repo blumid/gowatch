@@ -43,7 +43,8 @@ func task_init(file *[]byte, owner string) bool {
 		return false
 	}
 	for _, v := range temp {
-		err2 := db.AddProgram(&v, owner)
+		v.Owner = owner
+		err2 := db.AddProgram(&v)
 		if err2 != nil {
 			logrus.Fatal("task_init() - addProgram : ", err2)
 			continue
@@ -70,16 +71,17 @@ func task_update_db(file *[]byte, owner string) {
 		if scopes != nil {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
+				v.Owner = owner
 				logrus.Info(v.Name, ", diff is: ", diff)
 				discord.NotifyNewAsset(&v, diff)
 
 				db.UpdateInScopes(scopes.ID, diff)
 			}
 		} else {
+			v.Owner = owner
 			logrus.Info(v.Name, ", is a new program!")
 			discord.NotifyNewProgram(&v)
-
-			err := db.AddProgram(&v, owner)
+			err := db.AddProgram(&v)
 			if err != nil {
 				logrus.Fatal("task_update_db(): ", err)
 				continue
@@ -134,4 +136,3 @@ func readFile(name string) *[]byte {
 	}
 	return &file
 }
-

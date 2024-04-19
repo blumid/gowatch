@@ -114,37 +114,6 @@ func Timer() {
 
 func NotifyNewProgram(p *structure.Program) bool {
 
-		// thumbnail
-		thumb := discordgo.MessageEmbedThumbnail{
-			Width:  80,
-			Height: 80,
-		}
-		switch p.Owner {
-		case "hackerone":
-			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/hackerone.ico"
-		case "bugcrowd":
-			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/bugcrowd.ico"
-		case "intigriti":
-			thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/intigriti.ico"
-		}
-	
-
-	cID := getEnv("ChannelId_general")
-	embed := &discordgo.MessageEmbed{
-		Title:       p.Name,
-		URL:         p.Url,
-		Description: "*newProgram*",
-		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
-		Color: 0xff6666,
-		Thumbnail: &thumb,
-	}
-	dg.ChannelMessageSendEmbed(cID, embed)
-	return true
-}
-
-func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
-	cID := getEnv("ChannelId_general")
-
 	// thumbnail
 	thumb := discordgo.MessageEmbedThumbnail{
 		Width:  80,
@@ -157,6 +126,37 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/bugcrowd.ico"
 	case "intigriti":
 		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/intigriti.ico"
+	}
+
+	cID := getEnv("ChannelId_general")
+	embed := &discordgo.MessageEmbed{
+		Title:       p.Name,
+		URL:         p.Url,
+		Description: "*newProgram*",
+		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
+		Color:     0xff6666,
+		Thumbnail: &thumb,
+	}
+	dg.ChannelMessageSendEmbed(cID, embed)
+	return true
+}
+
+func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
+	cID := getEnv("ChannelId_general")
+
+	// thumbnail
+	thumb := discordgo.MessageEmbedThumbnail{
+		URL:    "https://raw.githubusercontent.com/blumid/gowatch/main/static/hackerone.jpg",
+		Width:  128,
+		Height: 128,
+	}
+	switch p.Owner {
+	case "hackerone":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/hackerone.jpg"
+	case "bugcrowd":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/bugcrowd.jpg"
+	case "intigriti":
+		thumb.URL = "https://raw.githubusercontent.com/blumid/gowatch/main/static/intigriti.jpg"
 	}
 
 	// fields
@@ -172,7 +172,7 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 	embed := &discordgo.MessageEmbed{
 		Title:       p.Name,
 		URL:         p.Url,
-		Description: "*newAsset*",
+		Description: "**" + p.Owner + "**",
 		// Timestamp:   time.Now().Format("2006-1-2 15:4:5"),
 		Color:     0x0080ff,
 		Fields:    fields,
