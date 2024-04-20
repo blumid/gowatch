@@ -90,7 +90,7 @@ func task_update_db(file *[]byte, owner string) {
 		}
 
 	}
-	logrus.Info("task_update: done!")
+	logrus.Info(owner + " updated")
 }
 
 func download() map[string]string {
