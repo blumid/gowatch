@@ -1,9 +1,9 @@
 # gowatch
 
-a command tool written in go to watch scoeps of HackerOne
+a command tool written in go to watch scoeps of HackerOne,BugCrowd and Intigriti
 - features:
     - get new programs
-    - get new added scopes
+    - get new added assets
     - notify in discord
 
 ## configuration
@@ -17,15 +17,19 @@ WebHook_URL="https://discord.com/api/webhooks/{webhook.id}/{webhook.token}"
 
 ### schedule execution
 
-- #### linux:
-after you installed it, add this line in `/etc/crontab/` file.
+#### linux:
+after you installed it:
+
+1. first make directory, forexample I made `/root/gowatch`.
+2. make you `.env` file in the directory.
+3. add a cronjob like below example in `/etc/crontab/` file.
 
 example:
 ```
-00 7 * * * <username> gowatch
+00 7 * * * root  cd /root/gowatch && gowatch
 ```
 
-- #### windows:
+#### windows:
 add a new task in `Task Scheduler`.
 
 ## installation
