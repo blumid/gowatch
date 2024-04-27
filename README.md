@@ -26,7 +26,7 @@ after you installed it:
 
 example:
 ```
-00 7 * * * root  cd /root/gowatch && gowatch
+00 */6  * * *   root    cd /root/gowatch && /root/go/bin/gowatch
 ```
 
 #### windows:
