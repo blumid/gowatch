@@ -10,6 +10,7 @@ type Program struct {
 	Url       string `json:"url"`
 	Target    Target `json:"targets"`
 	Owner     string
+	Bounty    string `json:"bounty"`
 	CreatedAt primitive.DateTime
 	UpdatedAt primitive.DateTime
 }

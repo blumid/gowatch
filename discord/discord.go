@@ -133,7 +133,7 @@ func NotifyNewProgram(p *structure.Program) bool {
 	embed := &discordgo.MessageEmbed{
 		Title:       p.Name,
 		URL:         p.Url,
-		Description: "*NewProgram*",
+		Description: "*NewProgram* , bounty:" + p.Bounty,
 		Color:       0xff6666,
 		Thumbnail:   &thumb,
 	}
@@ -172,7 +172,7 @@ func NotifyNewAsset(p *structure.Program, s []structure.InScope) bool {
 	embed := &discordgo.MessageEmbed{
 		Title:       p.Name,
 		URL:         p.Url,
-		Description: "*NewAsset*",
+		Description: "*NewAsset* , bounty:" + p.Bounty,
 		Color:       0x0080ff,
 		Fields:      fields,
 		Thumbnail:   &thumb,
