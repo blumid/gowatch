@@ -35,21 +35,32 @@ type Result_1 struct {
 	Target Target             `bson:"target"`
 }
 
-type Domain struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string             `bson:"name"`
-	Subs      []Sub              `bson:"subs,omitempty"`
-	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
-}
-
-type Sub struct {
-	Name   string
-	Hidden bool
-}
-
 type Message struct {
 	Username  string `json:"username,omitempty"`
 	AvatarUrl string `json:"avatar_url,omitempty"`
 	Content   string `json:"content,omitempty"`
 	// Embeds    []Embed `json:"embeds,omitempty"`
+}
+
+// asset collection:
+type Asset struct {
+	ID        primitive.ObjectID `bson:"_id"`
+	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
+	WILDCARD  string             `bson:"name"`
+	Subs      []Sub              `bson:"subs,omitempty"`
+}
+
+type Sub struct {
+	DName string // domain name
+	SC    int    //status code
+	CT    int    //content length
+	// Dns     Dns
+	Tech    []string // technology
+	Headers []string //response headers
+}
+
+type Dns struct {
+	A     string
+	Cname string
+	Mail  string
 }

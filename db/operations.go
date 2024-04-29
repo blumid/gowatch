@@ -65,12 +65,6 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 
 	var diff []structure.InScope
 	for _, item := range new {
-		// for _, el := range []string{"url", "wildcard", "cidr", "api"} {
-		// 	if el == strings.ToLower(item.Type) {
-		// 		diff = append(diff, item)
-		// 		break
-		// 	}
-		// }
 		if (strings.ToLower(item.Type) == "url" || strings.ToLower(item.Type) == "wildcard" || strings.ToLower(item.Type) == "cidr" || strings.ToLower(item.Type) == "api") && !m[item] {
 			diff = append(diff, item)
 		}
@@ -78,13 +72,13 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 	return diff
 }
 
-func AddSub(domain *structure.Domain) error {
-	data, _ := bson.Marshal(domain)
+// func AddSub(domain *structure.Domain) error {
+// 	data, _ := bson.Marshal(domain)
 
-	_, err := collection_domain.InsertOne(ctx, data)
+// 	_, err := collection_asset.InsertOne(ctx, data)
 
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -9,9 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection_program, collection_domain *mongo.Collection
+var collection_program, collection_asset *mongo.Collection
 var ctx = context.TODO()
-var DBExists = false
+var DBExists, AssetExist = false, false
 
 // connection string
 const url = "mongodb://localhost:27017/"
@@ -30,18 +31,31 @@ func init() {
 		return
 	}
 
-	//check db existence?
+	// check existence of db
 	DBExists = existDB(client, "gowatch")
+	// check  existence of assets
+	AssetExist = existColl(client, "assets")
+	fmt.Println("assets exists? ", AssetExist)
 
 	collection_program = client.Database("gowatch").Collection("programs")
-
-	// collection_domain = client.Database("gowatch").Collection("domains")
+	collection_asset = client.Database("gowatch").Collection("assets")
 }
 
 func existDB(client *mongo.Client, name string) bool {
 	databases, _ := client.ListDatabaseNames(context.Background(), bson.M{"name": name})
 
 	for _, db := range databases {
+		if db == name {
+			return true
+		}
+	}
+	return false
+}
+
+func existColl(client *mongo.Client, name string) bool {
+	colllections, _ := client.Database("gowatch").ListCollectionNames(context.Background(), bson.M{"name": name})
+
+	for _, db := range colllections {
 		if db == name {
 			return true
 		}

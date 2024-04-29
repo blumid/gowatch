@@ -13,6 +13,7 @@ import (
 	logrus "github.com/sirupsen/logrus"
 )
 
+// #phase 1:
 func Start() {
 
 	/*  --------- initial ----------- */
@@ -20,7 +21,7 @@ func Start() {
 	discord.Open()
 
 	//download json file
-	files := download()
+	files := getCommands()
 
 	for k, v := range files {
 		var file = readFile(v)
@@ -93,7 +94,7 @@ func task_update_db(file *[]byte, owner string) {
 	logrus.Info(owner + " updated")
 }
 
-func download() map[string]string {
+func getCommands() map[string]string {
 
 	commands := map[int]string{
 		// hackerOne
@@ -107,6 +108,10 @@ func download() map[string]string {
 		// bugCrowd
 		4: "wget -O BugCrowd.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/bugcrowd_data.json",
 		5: "jq 'map(.bounty = \"max: \" + (.max_payout | tostring) | del(.max_payout) | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .target then .asset = .target | del(.target) else . end | if .type == \"website\" then .type = \"url\" else . end) else . end))' BugCrowd.json > temp.json && mv temp.json BugCrowd.json",
+
+		// wildcards
+		6: "wget https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/wildcards.txt",
+		// 7: "",
 	}
 
 	for i := 0; i < len(commands); i++ {
@@ -136,3 +141,5 @@ func readFile(name string) *[]byte {
 	}
 	return &file
 }
+
+//  phase 2:

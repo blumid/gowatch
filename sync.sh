@@ -16,4 +16,8 @@ wget -O BugCrowd.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-
 jq 'map(.bounty = "max: " + (.max_payout | tostring) | del(.max_payout) | .targets |= with_entries(if .key == "in_scope" or .key == "out_of_scope" then .value |= map(if .target then .asset = .target | del(.target) else . end | if .type == "website" then .type = "url" else . end) else . end))' BugCrowd.json > temp.json && mv temp.json BugCrowd.json
 
 
+
+
+#whildcard
+wget https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/wildcards.txt
 exit
