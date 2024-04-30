@@ -1,16 +1,22 @@
 package tasks
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"time"
 
 	"github.com/blumid/gowatch/db"
 	"github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
 	logrus "github.com/sirupsen/logrus"
+
+	"github.com/projectdiscovery/subfinder/v2/pkg/runner"
 )
 
 // #phase 1:
@@ -21,9 +27,9 @@ func Start() {
 	discord.Open()
 
 	//download json file
-	files := getCommands()
+	commands := getCommands()
 
-	for k, v := range files {
+	for k, v := range commands {
 		var file = readFile(v)
 		if db.DBExists {
 			task_update_db(file, k)
@@ -142,4 +148,51 @@ func readFile(name string) *[]byte {
 	return &file
 }
 
-//  phase 2:
+// #phase 2:
+func Start_p2() {
+	subfinderOpts := &runner.Options{
+		Threads:            10, // Thread controls the number of threads to use for active enumerations
+		Timeout:            30, // Timeout is the seconds to wait for sources to respond
+		MaxEnumerationTime: 10, // MaxEnumerationTime is the maximum amount of time in mins to wait for enumeration
+		// ResultCallback: func(s *resolve.HostEntry) {
+		// callback function executed after each unique subdomain is found
+		// },
+		// ProviderConfig: "your_provider_config.yaml",
+		// and other config related options
+	}
+
+	subfinder, err := runner.NewRunner(subfinderOpts)
+	if err != nil {
+		// log.Fatalf("failed to create subfinder runner: %v", err)
+		fmt.Println(err)
+	}
+
+	output := &bytes.Buffer{}
+	// To run subdomain enumeration on a single domain
+	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), "hackerone.com", []io.Writer{output}); err != nil {
+		// log.Fatalf("failed to enumerate single domain: %v", err)
+		fmt.Println(err)
+	}
+
+	// To run subdomain enumeration on a list of domains from file/reader
+	file, err := os.Open("domains.txt")
+	if err != nil {
+		// log.Fatalf("failed to open domains file: %v", err)
+		fmt.Println(err)
+	}
+	defer file.Close()
+	if err = subfinder.EnumerateMultipleDomainsWithCtx(context.Background(), file, []io.Writer{output}); err != nil {
+		// log.Fatalf("failed to enumerate subdomains from file: %v", err)
+		fmt.Println(err)
+	}
+}
+
+func IsWild(domain string) bool {
+	wildcardPattern := `^\*\.[^.]+\.[^.]+$`
+	matched, err := regexp.MatchString(wildcardPattern, domain)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return false
+	}
+	return matched
+}

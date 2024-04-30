@@ -42,7 +42,7 @@ type Message struct {
 	// Embeds    []Embed `json:"embeds,omitempty"`
 }
 
-// asset collection:
+// --------------------- asset collection: --------------------
 type Asset struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
