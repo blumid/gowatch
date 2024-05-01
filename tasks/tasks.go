@@ -149,7 +149,7 @@ func readFile(name string) *[]byte {
 }
 
 // #phase 2:
-func Start_p2() {
+func EnumerateSub() {
 	subfinderOpts := &runner.Options{
 		Threads:            10, // Thread controls the number of threads to use for active enumerations
 		Timeout:            30, // Timeout is the seconds to wait for sources to respond
@@ -157,13 +157,14 @@ func Start_p2() {
 		// ResultCallback: func(s *resolve.HostEntry) {
 		// callback function executed after each unique subdomain is found
 		// },
-		// ProviderConfig: "your_provider_config.yaml",
+		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
 		// and other config related options
 	}
 
 	subfinder, err := runner.NewRunner(subfinderOpts)
 	if err != nil {
 		// log.Fatalf("failed to create subfinder runner: %v", err)
+		// logrus.Error("EnumerateSub-newRunner:",err)
 		fmt.Println(err)
 	}
 
@@ -181,6 +182,7 @@ func Start_p2() {
 		fmt.Println(err)
 	}
 	defer file.Close()
+
 	if err = subfinder.EnumerateMultipleDomainsWithCtx(context.Background(), file, []io.Writer{output}); err != nil {
 		// log.Fatalf("failed to enumerate subdomains from file: %v", err)
 		fmt.Println(err)
