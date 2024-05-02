@@ -16,7 +16,8 @@ import (
 	"github.com/blumid/gowatch/structure"
 	logrus "github.com/sirupsen/logrus"
 
-	"github.com/projectdiscovery/subfinder/v2/pkg/runner"
+	httpx "github.com/projectdiscovery/httpx/runner"
+	subfinder "github.com/projectdiscovery/subfinder/v2/pkg/runner"
 )
 
 // #phase 1:
@@ -150,7 +151,7 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 func EnumerateSub() {
-	subfinderOpts := &runner.Options{
+	subfinderOpts := &subfinder.Options{
 		Threads:            10, // Thread controls the number of threads to use for active enumerations
 		Timeout:            30, // Timeout is the seconds to wait for sources to respond
 		MaxEnumerationTime: 10, // MaxEnumerationTime is the maximum amount of time in mins to wait for enumeration
@@ -161,7 +162,7 @@ func EnumerateSub() {
 		// and other config related options
 	}
 
-	subfinder, err := runner.NewRunner(subfinderOpts)
+	subfinder, err := subfinder.NewRunner(subfinderOpts)
 	if err != nil {
 		// log.Fatalf("failed to create subfinder runner: %v", err)
 		// logrus.Error("EnumerateSub-newRunner:",err)
@@ -187,6 +188,33 @@ func EnumerateSub() {
 		// log.Fatalf("failed to enumerate subdomains from file: %v", err)
 		fmt.Println(err)
 	}
+}
+
+func EnumerateTech() {
+	options := httpx.Options{
+		Methods: "GET",
+		// InputTargetHost: goflags.StringSlice{"scanme.sh", "projectdiscovery.io", "localhost"},
+		//InputFile: "./targetDomains.txt", // path to file containing the target domains list
+		OnResult: func(r httpx.Result) {
+			// handle error
+			if r.Err != nil {
+				fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
+				return
+			}
+			fmt.Printf("%s %s %d\n", r.Input, r.Host, r.StatusCode)
+		},
+	}
+	if err := options.ValidateOptions(); err != nil {
+		// logrus.Fatal(err)
+		fmt.Println("tasks.EnumerateTech(): ", err)
+	}
+	httpxRunner, err := httpx.New(&options)
+	if err != nil {
+		// logrus.Fatal(err)
+		fmt.Println("tasks.EnumerateTech(): ", err)
+	}
+	defer httpxRunner.Close()
+
 }
 
 func IsWild(domain string) bool {
