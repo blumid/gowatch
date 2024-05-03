@@ -72,6 +72,18 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 	return diff
 }
 
+func AddAsset() error {
+	_, err := collection_asset.InsertOne(ctx, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateAsset() error {
+	return nil
+}
+
 // func AddSub(domain *structure.Domain) error {
 // 	data, _ := bson.Marshal(domain)
 

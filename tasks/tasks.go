@@ -28,9 +28,9 @@ func Start() {
 	discord.Open()
 
 	//download json file
-	commands := getCommands()
+	dls := getDls()
 
-	for k, v := range commands {
+	for k, v := range dls {
 		var file = readFile(v)
 		if db.DBExists {
 			task_update_db(file, k)
@@ -53,6 +53,7 @@ func task_init(file *[]byte, owner string) bool {
 	for _, v := range temp {
 		v.Owner = owner
 		err2 := db.AddProgram(&v)
+		// EnumerateSubs(v.in_scopes)
 		if err2 != nil {
 			logrus.Fatal("task_init() - addProgram : ", err2)
 			continue
@@ -84,12 +85,14 @@ func task_update_db(file *[]byte, owner string) {
 				discord.NotifyNewAsset(&v, diff)
 
 				db.UpdateInScopes(scopes.ID, diff)
+				// EnumerateSubs(diff)
 			}
 		} else {
 			v.Owner = owner
 			logrus.Info(v.Name, ", is a new program!")
 			discord.NotifyNewProgram(&v)
 			err := db.AddProgram(&v)
+			// EnumerateSubs(v.in_scopes)
 			if err != nil {
 				logrus.Fatal("task_update_db(): ", err)
 				continue
@@ -101,7 +104,7 @@ func task_update_db(file *[]byte, owner string) {
 	logrus.Info(owner + " updated")
 }
 
-func getCommands() map[string]string {
+func getDls() map[string]string {
 
 	commands := map[int]string{
 		// hackerOne
@@ -150,7 +153,8 @@ func readFile(name string) *[]byte {
 }
 
 // #phase 2:
-func EnumerateSub() {
+
+func EnumerateSubs(domains []string) {
 	subfinderOpts := &subfinder.Options{
 		Threads:            10, // Thread controls the number of threads to use for active enumerations
 		Timeout:            30, // Timeout is the seconds to wait for sources to respond
@@ -190,7 +194,7 @@ func EnumerateSub() {
 	}
 }
 
-func EnumerateTech() {
+func EnumerateTech(domain string) {
 	options := httpx.Options{
 		Methods: "GET",
 		// InputTargetHost: goflags.StringSlice{"scanme.sh", "projectdiscovery.io", "localhost"},
