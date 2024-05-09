@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/blumid/gowatch/db"
@@ -86,6 +87,7 @@ func task_update_db(file *[]byte, owner string) {
 
 				db.UpdateInScopes(scopes.ID, diff)
 				// EnumerateSubs(diff)
+				// DoScopes(diff)
 			}
 		} else {
 			v.Owner = owner
@@ -218,10 +220,9 @@ func EnumerateTech(domain string) {
 		fmt.Println("tasks.EnumerateTech(): ", err)
 	}
 	defer httpxRunner.Close()
-
 }
 
-func IsWild(domain string) bool {
+func isWild(domain string) bool {
 	wildcardPattern := `^\*\.[^.]+\.[^.]+$`
 	matched, err := regexp.MatchString(wildcardPattern, domain)
 	if err != nil {
@@ -229,4 +230,23 @@ func IsWild(domain string) bool {
 		return false
 	}
 	return matched
+}
+
+func DoScopes(assets []structure.InScope) {
+
+	var s_type string
+
+	for _, v := range assets {
+		s_type = strings.ToLower(v.Type)
+		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
+			if isWild(v.Asset) {
+				// EnumerateSubs()
+			} else {
+				EnumerateTech(v.Asset)
+			}
+		} else {
+			continue
+		}
+	}
+
 }

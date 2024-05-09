@@ -64,8 +64,10 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 	}
 
 	var diff []structure.InScope
+	var s_type string
 	for _, item := range new {
-		if (strings.ToLower(item.Type) == "url" || strings.ToLower(item.Type) == "wildcard" || strings.ToLower(item.Type) == "cidr" || strings.ToLower(item.Type) == "api") && !m[item] {
+		s_type = strings.ToLower(item.Type)
+		if (s_type == "url" || s_type == "wildcard" || s_type == "cidr" || s_type == "api") && !m[item] {
 			diff = append(diff, item)
 		}
 	}
