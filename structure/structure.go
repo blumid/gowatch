@@ -43,17 +43,16 @@ type Message struct {
 }
 
 // --------------------- asset collection: --------------------
-type Asset struct {
+type Subdomain struct {
 	ID        primitive.ObjectID `bson:"_id"`
-	ProgramID primitive.ObjectID `bson:"program_id,omitempty"`
-	WILDCARD  string             `bson:"name"`
-	Subs      []Sub              `bson:"subs,omitempty"`
+	ProgramID primitive.ObjectID `bson:"programID,omitempty"`
+	Sub       string             `bson:"subdomain,omitempty"`
+	Detail    Detail             `bson:"detail,omitempty"`
 }
 
-type Sub struct {
-	DName string // domain name
-	SC    int    //status code
-	CT    int    //content length
+type Detail struct {
+	SC int //status code
+	CT int //content length
 	// Dns     Dns
 	Tech    []string // technology
 	Headers []string //response headers

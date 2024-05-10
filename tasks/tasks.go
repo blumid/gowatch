@@ -22,6 +22,7 @@ import (
 )
 
 // #phase 1:
+
 func Start() {
 
 	/*  --------- initial ----------- */
@@ -156,7 +157,8 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 
-func EnumerateSubs(domains []string) {
+func EnumerateSubs(domain string) []string {
+	var subs []string
 	subfinderOpts := &subfinder.Options{
 		Threads:            10, // Thread controls the number of threads to use for active enumerations
 		Timeout:            30, // Timeout is the seconds to wait for sources to respond
@@ -194,6 +196,8 @@ func EnumerateSubs(domains []string) {
 		// log.Fatalf("failed to enumerate subdomains from file: %v", err)
 		fmt.Println(err)
 	}
+
+	return subs
 }
 
 func EnumerateTech(domain string) {
@@ -234,19 +238,24 @@ func isWild(domain string) bool {
 
 func DoScopes(assets []structure.InScope) {
 
-	var s_type string
-
+	var s_type, d string
+	var subs []string
 	for _, v := range assets {
 		s_type = strings.ToLower(v.Type)
 		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
 			if isWild(v.Asset) {
-				// EnumerateSubs()
+				//get rid of Asterisk
+				d = strings.TrimLeft(v.Asset, "*.")
+				res := EnumerateSubs(d)
+				subs = append(subs, res...)
 			} else {
-				EnumerateTech(v.Asset)
+				// EnumerateTech(v.Asset)
+				subs = append(subs, v.Asset)
 			}
-		} else {
-			continue
 		}
+		continue
 	}
+
+	fmt.Println(subs)
 
 }
