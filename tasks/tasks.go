@@ -32,10 +32,15 @@ func Start() {
 	//download json file
 	dls := getDls()
 
+	// test
+
 	for k, v := range dls {
 		var file = readFile(v)
 		if db.DBExists {
 			task_update_db(file, k)
+			// test
+			break
+			//
 		} else {
 			res := task_init(file, k)
 			if res {
@@ -68,7 +73,8 @@ func task_update_db(file *[]byte, owner string) {
 	var temp []structure.Program
 	err := json.Unmarshal(*file, &temp)
 	if err != nil {
-		logrus.Error("task_update_db(): ", err)
+		// logrus.Error("task_update_db(): ", err)
+		fmt.Println("task_update_db(): ", err)
 		return
 	}
 
@@ -76,30 +82,35 @@ func task_update_db(file *[]byte, owner string) {
 
 		scopes, err := db.GetInScopes(v.Name)
 		if err != nil {
-			logrus.Fatal("task_update_db(): ", err)
+			// logrus.Fatal("task_update_db(): ", err)
+			fmt.Println("task_update_db(): ", err)
 			continue
 		}
 		if scopes != nil {
 			diff := db.ScopeDiff(v.Target.InScope, scopes.Target.InScope)
 			if diff != nil {
 				v.Owner = owner
-				logrus.Info(v.Name, ", diff is: ", diff)
-				discord.NotifyNewAsset(&v, diff)
+
+				// test
+				// logrus.Info(v.Name, ", diff is: ", diff)
+				// discord.NotifyNewAsset(&v, diff)
+				//
 
 				db.UpdateInScopes(scopes.ID, diff)
-				// EnumerateSubs(diff)
-				// DoScopes(diff)
+
+				DoScopes(diff)
 			}
 		} else {
 			v.Owner = owner
-			logrus.Info(v.Name, ", is a new program!")
-			discord.NotifyNewProgram(&v)
-			err := db.AddProgram(&v)
-			// EnumerateSubs(v.in_scopes)
-			if err != nil {
-				logrus.Fatal("task_update_db(): ", err)
-				continue
-			}
+			// logrus.Info(v.Name, ", is a new program!")
+			// discord.NotifyNewProgram(&v)
+			// err := db.AddProgram(&v)
+			// // EnumerateSubs(v.in_scopes)
+			// if err != nil {
+			// 	logrus.Fatal("task_update_db(): ", err)
+			// 	continue
+			// }
+			DoScopes(v.Target.InScope)
 
 		}
 
@@ -115,32 +126,35 @@ func getDls() map[string]string {
 		1: "jq 'map(.bounty = (.offers_bounties | tostring) | del(.offers_bounties) | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .asset_identifier then .asset = .asset_identifier | del(.asset_identifier) else . end | if .asset_type then .type = .asset_type | del(.asset_type) else . end) else . end))' HackerOne.json > temp.json && mv temp.json HackerOne.json",
 
 		// intigriti
-		2: "wget -O Intigriti.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/intigriti_data.json",
-		3: "jq 'map(.bounty = (.min_bounty.value | tostring) + \"-\" + (.max_bounty.value | tostring) + \" \" + .min_bounty.currency | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .endpoint then .asset = .endpoint | del(.endpoint) else . end) else . end))' Intigriti.json > temp.json && mv temp.json Intigriti.json",
+		// 2: "wget -O Intigriti.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/intigriti_data.json",
+		// 3: "jq 'map(.bounty = (.min_bounty.value | tostring) + \"-\" + (.max_bounty.value | tostring) + \" \" + .min_bounty.currency | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .endpoint then .asset = .endpoint | del(.endpoint) else . end) else . end))' Intigriti.json > temp.json && mv temp.json Intigriti.json",
 
-		// bugCrowd
-		4: "wget -O BugCrowd.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/bugcrowd_data.json",
-		5: "jq 'map(.bounty = \"max: \" + (.max_payout | tostring) | del(.max_payout) | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .target then .asset = .target | del(.target) else . end | if .type == \"website\" then .type = \"url\" else . end) else . end))' BugCrowd.json > temp.json && mv temp.json BugCrowd.json",
+		// // bugCrowd
+		// 4: "wget -O BugCrowd.json -A json https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/bugcrowd_data.json",
+		// 5: "jq 'map(.bounty = \"max: \" + (.max_payout | tostring) | del(.max_payout) | .targets |= with_entries(if .key == \"in_scope\" or .key == \"out_of_scope\" then .value |= map(if .target then .asset = .target | del(.target) else . end | if .type == \"website\" then .type = \"url\" else . end) else . end))' BugCrowd.json > temp.json && mv temp.json BugCrowd.json",
 
 		// wildcards
-		6: "wget https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/wildcards.txt",
-		// 7: "",
+		// 6: "wget https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/wildcards.txt",
 	}
 
 	for i := 0; i < len(commands); i++ {
 
 		cmd := fmt.Sprintf(commands[i])
 		runCommand(cmd)
-		time.Sleep(time.Millisecond * 150)
+		time.Sleep(time.Millisecond * 500)
 	}
-	return map[string]string{"hackerone": "HackerOne.json", "intigriti": "Intigriti.json", "bugcrowd": "BugCrowd.json"}
+
+	// test
+	return map[string]string{"hackerone": "HackerOne.json"}
+	//
+	// return map[string]string{"hackerone": "HackerOne.json", "intigriti": "Intigriti.json", "bugcrowd": "BugCrowd.json"}
 }
 
 func runCommand(command string) {
 	com := exec.Command("bash", "-c", command)
 	if err := com.Run(); err != nil {
-		fmt.Println("error is:", err)
-		logrus.Error("tasks.runCommand():", err)
+		fmt.Println("tasks.runCommand():", err)
+		// logrus.Error("tasks.runCommand():", err)
 		os.Exit(1)
 	}
 }
@@ -179,23 +193,26 @@ func EnumerateSubs(domain string) []string {
 
 	output := &bytes.Buffer{}
 	// To run subdomain enumeration on a single domain
-	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), "hackerone.com", []io.Writer{output}); err != nil {
+	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output}); err != nil {
 		// log.Fatalf("failed to enumerate single domain: %v", err)
 		fmt.Println(err)
 	}
 
-	// To run subdomain enumeration on a list of domains from file/reader
-	file, err := os.Open("domains.txt")
-	if err != nil {
-		// log.Fatalf("failed to open domains file: %v", err)
-		fmt.Println(err)
-	}
-	defer file.Close()
+	result := output.String()
+	subs = strings.Split(result, "\n")
 
-	if err = subfinder.EnumerateMultipleDomainsWithCtx(context.Background(), file, []io.Writer{output}); err != nil {
-		// log.Fatalf("failed to enumerate subdomains from file: %v", err)
-		fmt.Println(err)
-	}
+	// To run subdomain enumeration on a list of domains from file/reader
+	// file, err := os.Open("domains.txt")
+	// if err != nil {
+	// 	// log.Fatalf("failed to open domains file: %v", err)
+	// 	fmt.Println(err)
+	// }
+	// defer file.Close()
+
+	// if err = subfinder.EnumerateMultipleDomainsWithCtx(context.Background(), file, []io.Writer{output}); err != nil {
+	// 	// log.Fatalf("failed to enumerate subdomains from file: %v", err)
+	// 	fmt.Println(err)
+	// }
 
 	return subs
 }
@@ -238,11 +255,13 @@ func isWild(domain string) bool {
 
 func DoScopes(assets []structure.InScope) {
 
+	fmt.Println("assets are:", assets)
 	var s_type, d string
 	var subs []string
-	for _, v := range assets {
+	for i, v := range assets {
 		s_type = strings.ToLower(v.Type)
 		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
+			fmt.Println("round, ", i, ": ", v)
 			if isWild(v.Asset) {
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
@@ -256,6 +275,6 @@ func DoScopes(assets []structure.InScope) {
 		continue
 	}
 
-	fmt.Println(subs)
+	fmt.Println("subs are: ", subs)
 
 }
