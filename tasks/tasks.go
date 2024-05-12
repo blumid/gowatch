@@ -115,7 +115,9 @@ func task_update_db(file *[]byte, owner string) {
 		}
 
 	}
-	logrus.Info(owner + " updated")
+	// test
+	// logrus.Info(owner + " updated")
+	//
 }
 
 func getDls() map[string]string {
@@ -181,7 +183,6 @@ func EnumerateSubs(domain string) []string {
 		// callback function executed after each unique subdomain is found
 		// },
 		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
-		// and other config related options
 	}
 
 	subfinder, err := subfinder.NewRunner(subfinderOpts)
@@ -244,7 +245,7 @@ func EnumerateTech(domain string) {
 }
 
 func isWild(domain string) bool {
-	wildcardPattern := `^\*\.[^.]+\.[^.]+$`
+	wildcardPattern := `^\*\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	matched, err := regexp.MatchString(wildcardPattern, domain)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -263,6 +264,7 @@ func DoScopes(assets []structure.InScope) {
 		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
 			fmt.Println("round, ", i, ": ", v)
 			if isWild(v.Asset) {
+				fmt.Println(v, " is wild ")
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
 				res := EnumerateSubs(d)
