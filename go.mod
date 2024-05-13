@@ -90,7 +90,7 @@ require (
 	github.com/projectdiscovery/fdmax v0.0.4 // indirect
 	github.com/projectdiscovery/freeport v0.0.5 // indirect
 	github.com/projectdiscovery/goconfig v0.0.1 // indirect
-	github.com/projectdiscovery/goflags v0.1.42 // indirect
+	github.com/projectdiscovery/goflags v0.1.42
 	github.com/projectdiscovery/gologger v1.1.12 // indirect
 	github.com/projectdiscovery/gostruct v0.0.2 // indirect
 	github.com/projectdiscovery/hmap v0.0.41 // indirect

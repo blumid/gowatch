@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +34,7 @@ func init() {
 	DBExists = existDB(client, "gowatch")
 	// check  existence of assets
 	AssetExist = existColl(client, "assets")
-	fmt.Println("assets exists? ", AssetExist)
+	// fmt.Println("assets existstence :", AssetExist)
 
 	collection_program = client.Database("gowatch").Collection("programs")
 	collection_asset = client.Database("gowatch").Collection("assets")

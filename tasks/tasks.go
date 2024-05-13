@@ -17,7 +17,9 @@ import (
 	"github.com/blumid/gowatch/structure"
 	logrus "github.com/sirupsen/logrus"
 
+	"github.com/projectdiscovery/goflags"
 	httpx "github.com/projectdiscovery/httpx/runner"
+	"github.com/projectdiscovery/subfinder/v2/pkg/resolve"
 	subfinder "github.com/projectdiscovery/subfinder/v2/pkg/runner"
 )
 
@@ -173,15 +175,17 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 
-func EnumerateSubs(domain string) []string {
+func enumerateSubs(domain string) []string {
 	var subs []string
 	subfinderOpts := &subfinder.Options{
 		Threads:            10, // Thread controls the number of threads to use for active enumerations
 		Timeout:            30, // Timeout is the seconds to wait for sources to respond
 		MaxEnumerationTime: 10, // MaxEnumerationTime is the maximum amount of time in mins to wait for enumeration
-		// ResultCallback: func(s *resolve.HostEntry) {
-		// callback function executed after each unique subdomain is found
-		// },
+		ResultCallback: func(s *resolve.HostEntry) {
+			enumerateTech(s.Host)
+			fmt.Println(s)
+		},
+
 		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
 	}
 
@@ -218,18 +222,17 @@ func EnumerateSubs(domain string) []string {
 	return subs
 }
 
-func EnumerateTech(domain string) {
+func enumerateTech(domain string) {
 	options := httpx.Options{
-		Methods: "GET",
-		// InputTargetHost: goflags.StringSlice{"scanme.sh", "projectdiscovery.io", "localhost"},
-		//InputFile: "./targetDomains.txt", // path to file containing the target domains list
+		Methods:         "GET",
+		InputTargetHost: goflags.StringSlice{domain},
 		OnResult: func(r httpx.Result) {
 			// handle error
 			if r.Err != nil {
 				fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
 				return
 			}
-			fmt.Printf("%s %s %d\n", r.Input, r.Host, r.StatusCode)
+			fmt.Printf("%s %s\n", r.Input, r.Technologies)
 		},
 	}
 	if err := options.ValidateOptions(); err != nil {
@@ -242,6 +245,7 @@ func EnumerateTech(domain string) {
 		fmt.Println("tasks.EnumerateTech(): ", err)
 	}
 	defer httpxRunner.Close()
+	httpxRunner.RunEnumeration()
 }
 
 func isWild(domain string) bool {
@@ -256,18 +260,17 @@ func isWild(domain string) bool {
 
 func DoScopes(assets []structure.InScope) {
 
-	fmt.Println("assets are:", assets)
 	var s_type, d string
 	var subs []string
-	for i, v := range assets {
+	for _, v := range assets {
 		s_type = strings.ToLower(v.Type)
 		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
-			fmt.Println("round, ", i, ": ", v)
+
 			if isWild(v.Asset) {
-				fmt.Println(v, " is wild ")
+
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
-				res := EnumerateSubs(d)
+				res := enumerateSubs(d)
 				subs = append(subs, res...)
 			} else {
 				// EnumerateTech(v.Asset)
@@ -278,5 +281,6 @@ func DoScopes(assets []structure.InScope) {
 	}
 
 	fmt.Println("subs are: ", subs)
+	// add to db here:
 
 }
