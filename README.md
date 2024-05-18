@@ -1,6 +1,6 @@
 # gowatch
 
-a command tool written in go to watch scoeps of HackerOne,BugCrowd and Intigriti
+a command tool written in go to watch scoeps of **HackerOne**,**BugCrowd** and **Intigriti**
 - features:
     - get new programs
     - get new added assets
