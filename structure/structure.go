@@ -47,19 +47,17 @@ type Subdomain struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	ProgramID primitive.ObjectID `bson:"programID,omitempty"`
 	Sub       string             `bson:"subdomain,omitempty"`
+	SC        int                `bson:"sc"` //status code
+	CT        int                `bson:"ct"` //content length
+	Locatoin  string             `bson:"location,omitempty"`
 	Detail    Detail             `bson:"detail,omitempty"`
 }
 
 type Detail struct {
-	SC int //status code
-	CT int //content length
-	// Dns     Dns
+	Icon    string `bson:"icon,omitempty"`
+	A       string
+	Cname   string
+	Mail    string
 	Tech    []string // technology
 	Headers []string //response headers
-}
-
-type Dns struct {
-	A     string
-	Cname string
-	Mail  string
 }

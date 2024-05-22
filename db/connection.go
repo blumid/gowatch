@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collection_program, collection_asset *mongo.Collection
+var collection_program, collection_sub *mongo.Collection
 var ctx = context.TODO()
 var DBExists, AssetExist = false, false
 
@@ -33,11 +33,10 @@ func init() {
 	// check existence of db
 	DBExists = existDB(client, "gowatch")
 	// check  existence of assets
-	AssetExist = existColl(client, "assets")
-	// fmt.Println("assets existstence :", AssetExist)
+	AssetExist = existColl(client, "subs")
 
 	collection_program = client.Database("gowatch").Collection("programs")
-	collection_asset = client.Database("gowatch").Collection("assets")
+	collection_sub = client.Database("gowatch").Collection("subs")
 }
 
 func existDB(client *mongo.Client, name string) bool {

@@ -175,12 +175,12 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 
-func enumerateSubs(domain string) []string {
-	var subs []string
+func enumerateSubs(domain string) {
+	// var subs []string
 	subfinderOpts := &subfinder.Options{
-		Threads:            10, // Thread controls the number of threads to use for active enumerations
-		Timeout:            30, // Timeout is the seconds to wait for sources to respond
-		MaxEnumerationTime: 10, // MaxEnumerationTime is the maximum amount of time in mins to wait for enumeration
+		Threads:            10,
+		Timeout:            30,
+		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
 			enumerateTech(s.Host)
 			fmt.Println(s)
@@ -203,26 +203,16 @@ func enumerateSubs(domain string) []string {
 		fmt.Println(err)
 	}
 
-	result := output.String()
-	subs = strings.Split(result, "\n")
+	// result := output.String()
+	// subs = strings.Split(result, "\n")
 
-	// To run subdomain enumeration on a list of domains from file/reader
-	// file, err := os.Open("domains.txt")
-	// if err != nil {
-	// 	// log.Fatalf("failed to open domains file: %v", err)
-	// 	fmt.Println(err)
-	// }
-	// defer file.Close()
-
-	// if err = subfinder.EnumerateMultipleDomainsWithCtx(context.Background(), file, []io.Writer{output}); err != nil {
-	// 	// log.Fatalf("failed to enumerate subdomains from file: %v", err)
-	// 	fmt.Println(err)
-	// }
-
-	return subs
+	// return subs
 }
 
 func enumerateTech(domain string) {
+
+	temp := structure.Subdomain{Sub: domain}
+
 	options := httpx.Options{
 		Methods:         "GET",
 		InputTargetHost: goflags.StringSlice{domain},
@@ -232,7 +222,13 @@ func enumerateTech(domain string) {
 				fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
 				return
 			}
-			fmt.Printf("%s %s\n", r.Input, r.Technologies)
+			// fill a temp var && calling AddSub()
+			temp.SC = r.StatusCode
+			temp.CT = r.ContentLength
+			temp.Detail.Tech = r.Technologies
+			temp.Detail.Icon = r.FavIconMMH3
+
+			fmt.Printf("%s \nraw headers: %s\n", r.Input, r.RawHeaders)
 		},
 	}
 	if err := options.ValidateOptions(); err != nil {
@@ -261,7 +257,7 @@ func isWild(domain string) bool {
 func DoScopes(assets []structure.InScope) {
 
 	var s_type, d string
-	var subs []string
+
 	for _, v := range assets {
 		s_type = strings.ToLower(v.Type)
 		if s_type == "url" || s_type == "wildcard" || s_type == "api" {
@@ -270,17 +266,15 @@ func DoScopes(assets []structure.InScope) {
 
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
-				res := enumerateSubs(d)
-				subs = append(subs, res...)
+				enumerateSubs(d)
 			} else {
-				// EnumerateTech(v.Asset)
-				subs = append(subs, v.Asset)
+				enumerateTech(v.Asset)
 			}
 		}
 		continue
 	}
 
-	fmt.Println("subs are: ", subs)
+	// fmt.Println("subs are: ", subs)
 	// add to db here:
 
 }
