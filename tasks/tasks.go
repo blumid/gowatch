@@ -16,6 +16,7 @@ import (
 	"github.com/blumid/gowatch/discord"
 	"github.com/blumid/gowatch/structure"
 	logrus "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/projectdiscovery/goflags"
 	httpx "github.com/projectdiscovery/httpx/runner"
@@ -61,7 +62,7 @@ func task_init(file *[]byte, owner string) bool {
 	}
 	for _, v := range temp {
 		v.Owner = owner
-		err2 := db.AddProgram(&v)
+		_, err2 := db.AddProgram(&v)
 		// EnumerateSubs(v.in_scopes)
 		if err2 != nil {
 			logrus.Fatal("task_init() - addProgram : ", err2)
@@ -100,19 +101,19 @@ func task_update_db(file *[]byte, owner string) {
 
 				db.UpdateInScopes(scopes.ID, diff)
 
-				DoScopes(diff)
+				DoScopes(scopes.ID, diff)
 			}
 		} else {
 			v.Owner = owner
 			// logrus.Info(v.Name, ", is a new program!")
 			// discord.NotifyNewProgram(&v)
-			// err := db.AddProgram(&v)
+			// id,err := db.AddProgram(&v)
 			// // EnumerateSubs(v.in_scopes)
 			// if err != nil {
 			// 	logrus.Fatal("task_update_db(): ", err)
 			// 	continue
 			// }
-			DoScopes(v.Target.InScope)
+			// DoScopes(id,v.Target.InScope)
 
 		}
 
@@ -175,14 +176,14 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 
-func enumerateSubs(domain string) {
+func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 	// var subs []string
 	subfinderOpts := &subfinder.Options{
 		Threads:            10,
 		Timeout:            30,
 		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
-			enumerateTech(s.Host)
+			enumerateTech(prog_id, s.Host)
 			// fmt.Println(s)
 		},
 
@@ -209,9 +210,9 @@ func enumerateSubs(domain string) {
 	// return subs
 }
 
-func enumerateTech(domain string) {
+func enumerateTech(prog_id primitive.ObjectID, domain string) {
 
-	temp := structure.Subdomain{Sub: domain}
+	temp := structure.Subdomain{ProgramID: prog_id, Sub: domain}
 
 	options := httpx.Options{
 		Methods:                 "GET",
@@ -226,7 +227,7 @@ func enumerateTech(domain string) {
 			}
 			// fill a temp var && calling AddSub()
 			temp.SC = r.StatusCode
-			temp.CL = r.ContentLength
+			// temp.CL = r.ContentLength
 
 			if r.Location != "" {
 				temp.Locatoin = r.Location
@@ -238,8 +239,6 @@ func enumerateTech(domain string) {
 			temp.Detail.A = r.A
 			temp.Detail.Cname = r.CNAMEs
 			temp.Detail.CDN = r.CDN
-
-			fmt.Println("raw headers: ", r)
 
 		},
 	}
@@ -257,7 +256,7 @@ func enumerateTech(domain string) {
 
 	if temp.SC != 0 {
 		fmt.Println("let's add to db ", temp.Sub)
-		// db.AddSub(&temp)
+		db.AddSub(&temp)
 	}
 }
 
@@ -271,7 +270,7 @@ func isWild(domain string) bool {
 	return matched
 }
 
-func DoScopes(assets []structure.InScope) {
+func DoScopes(id primitive.ObjectID, assets []structure.InScope) {
 
 	var s_type, d string
 
@@ -283,9 +282,9 @@ func DoScopes(assets []structure.InScope) {
 
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
-				enumerateSubs(d)
+				enumerateSubs(id, d)
 			} else {
-				enumerateTech(v.Asset)
+				enumerateTech(id, v.Asset)
 			}
 		}
 		continue

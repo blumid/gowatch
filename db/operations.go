@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -14,16 +15,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func AddProgram(program *structure.Program) error {
+func AddProgram(program *structure.Program) (primitive.ObjectID, error) {
 	program.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	program.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 	data, _ := bson.Marshal(program)
 
-	_, err := collection_program.InsertOne(ctx, data)
+	res, err := collection_program.InsertOne(ctx, data)
 	if err != nil {
-		return err
+		return primitive.NilObjectID, err
 	}
-	return nil
+	insertedID, ok := res.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return primitive.NilObjectID, fmt.Errorf("inserted ID is not a valid ObjectID")
+	}
+
+	return insertedID, nil
 }
 
 func GetInScopes(name string) (*structure.Result_1, error) {
@@ -72,10 +78,6 @@ func ScopeDiff(new, old []structure.InScope) []structure.InScope {
 		}
 	}
 	return diff
-}
-
-func UpdateAsset() error {
-	return nil
 }
 
 func AddSub(domain *structure.Subdomain) error {

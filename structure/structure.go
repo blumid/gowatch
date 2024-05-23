@@ -44,13 +44,13 @@ type Message struct {
 
 // --------------------- asset collection: --------------------
 type Subdomain struct {
-	ID        primitive.ObjectID `bson:"_id"`
+	// ID        primitive.ObjectID `bson:"_id"`
 	ProgramID primitive.ObjectID `bson:"programID,omitempty"`
 	Sub       string             `bson:"subdomain,omitempty"`
 	SC        int                `bson:"sc"` //status code
-	CL        int                `bson:"cl"` //content length
-	Locatoin  string             `bson:"location,omitempty"`
-	Detail    Detail             `bson:"detail,omitempty"`
+	// CL        int                `bson:"cl"` //content length
+	Locatoin string `bson:"location,omitempty"`
+	Detail   Detail `bson:"detail,omitempty"`
 }
 
 type Detail struct {
