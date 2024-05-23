@@ -183,7 +183,7 @@ func enumerateSubs(domain string) {
 		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
 			enumerateTech(s.Host)
-			fmt.Println(s)
+			// fmt.Println(s)
 		},
 
 		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
@@ -214,21 +214,33 @@ func enumerateTech(domain string) {
 	temp := structure.Subdomain{Sub: domain}
 
 	options := httpx.Options{
-		Methods:         "GET",
-		InputTargetHost: goflags.StringSlice{domain},
+		Methods:                 "GET",
+		Silent:                  true,
+		InputTargetHost:         goflags.StringSlice{domain},
+		ResponseHeadersInStdout: true,
 		OnResult: func(r httpx.Result) {
 			// handle error
 			if r.Err != nil {
-				fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
+				// fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
 				return
 			}
 			// fill a temp var && calling AddSub()
 			temp.SC = r.StatusCode
-			temp.CT = r.ContentLength
+			temp.CL = r.ContentLength
+
+			if r.Location != "" {
+				temp.Locatoin = r.Location
+			}
+
 			temp.Detail.Tech = r.Technologies
 			temp.Detail.Icon = r.FavIconMMH3
+			temp.Detail.Headers = r.ResponseHeaders
+			temp.Detail.A = r.A
+			temp.Detail.Cname = r.CNAMEs
+			temp.Detail.CDN = r.CDN
 
-			fmt.Printf("%s \nraw headers: %s\n", r.Input, r.RawHeaders)
+			fmt.Println("raw headers: ", r)
+
 		},
 	}
 	if err := options.ValidateOptions(); err != nil {
@@ -242,6 +254,11 @@ func enumerateTech(domain string) {
 	}
 	defer httpxRunner.Close()
 	httpxRunner.RunEnumeration()
+
+	if temp.SC != 0 {
+		fmt.Println("let's add to db ", temp.Sub)
+		// db.AddSub(&temp)
+	}
 }
 
 func isWild(domain string) bool {
