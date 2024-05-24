@@ -44,20 +44,18 @@ type Message struct {
 
 // --------------------- asset collection: --------------------
 type Subdomain struct {
-	// ID        primitive.ObjectID `bson:"_id"`
 	ProgramID primitive.ObjectID `bson:"programID,omitempty"`
 	Sub       string             `bson:"subdomain,omitempty"`
-	SC        int                `bson:"sc"` //status code
-	// CL        int                `bson:"cl"` //content length
-	Locatoin string `bson:"location,omitempty"`
-	Detail   Detail `bson:"detail,omitempty"`
+	SC        int                `bson:"sc"` // status code
+	Locatoin  string             `bson:"location,omitempty"`
+	CDN       bool               `bson:"cdn"`
+	Icon      string             `bson:"icon,omitempty"`
+	Detail    Detail             `bson:"detail,omitempty"`
 }
 
 type Detail struct {
-	CDN     bool   `bson:"cdn"`
-	Icon    string `bson:"icon,omitempty"`
-	A       []string
-	Cname   []string
-	Tech    []string               // technology
-	Headers map[string]interface{} //response headers
+	A       []string               // dns A record
+	Cname   []string               // dns CNAME record
+	Tech    []string               // technologies
+	Headers map[string]interface{} // response headers
 }

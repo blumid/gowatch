@@ -62,12 +62,13 @@ func task_init(file *[]byte, owner string) bool {
 	}
 	for _, v := range temp {
 		v.Owner = owner
-		_, err2 := db.AddProgram(&v)
+		id, err2 := db.AddProgram(&v)
 		// EnumerateSubs(v.in_scopes)
 		if err2 != nil {
 			logrus.Fatal("task_init() - addProgram : ", err2)
 			continue
 		}
+		DoScopes(id, v.Target.InScope)
 	}
 	return true
 }
@@ -105,15 +106,15 @@ func task_update_db(file *[]byte, owner string) {
 			}
 		} else {
 			v.Owner = owner
-			// logrus.Info(v.Name, ", is a new program!")
-			// discord.NotifyNewProgram(&v)
-			// id,err := db.AddProgram(&v)
-			// // EnumerateSubs(v.in_scopes)
-			// if err != nil {
-			// 	logrus.Fatal("task_update_db(): ", err)
-			// 	continue
-			// }
-			// DoScopes(id,v.Target.InScope)
+			logrus.Info(v.Name, ", is a new program!")
+			discord.NotifyNewProgram(&v)
+			id, err := db.AddProgram(&v)
+
+			if err != nil {
+				logrus.Fatal("task_update_db(): ", err)
+				continue
+			}
+			DoScopes(id, v.Target.InScope)
 
 		}
 
@@ -227,18 +228,18 @@ func enumerateTech(prog_id primitive.ObjectID, domain string) {
 			}
 			// fill a temp var && calling AddSub()
 			temp.SC = r.StatusCode
-			// temp.CL = r.ContentLength
 
 			if r.Location != "" {
 				temp.Locatoin = r.Location
 			}
 
-			temp.Detail.Tech = r.Technologies
-			temp.Detail.Icon = r.FavIconMMH3
-			temp.Detail.Headers = r.ResponseHeaders
+			temp.Icon = r.FavIconMMH3
+			temp.CDN = r.CDN
+
 			temp.Detail.A = r.A
 			temp.Detail.Cname = r.CNAMEs
-			temp.Detail.CDN = r.CDN
+			temp.Detail.Tech = r.Technologies
+			temp.Detail.Headers = r.ResponseHeaders
 
 		},
 	}
@@ -289,8 +290,5 @@ func DoScopes(id primitive.ObjectID, assets []structure.InScope) {
 		}
 		continue
 	}
-
-	// fmt.Println("subs are: ", subs)
-	// add to db here:
 
 }
