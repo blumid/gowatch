@@ -186,7 +186,6 @@ func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
 			enumerateTech(prog_id, s.Host)
-			// fmt.Println(s)
 		},
 
 		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
@@ -253,7 +252,6 @@ func enumerateTech(prog_id primitive.ObjectID, domain string) {
 	httpxRunner.RunEnumeration()
 
 	if temp.SC != 0 {
-		fmt.Println("let's add to db ", temp.Sub)
 		db.AddSub(&temp)
 	}
 }
