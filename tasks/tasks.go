@@ -68,7 +68,7 @@ func task_init(file *[]byte, owner string) bool {
 			logrus.Fatal("task_init() - addProgram : ", err2)
 			continue
 		}
-		DoScopes(id, v.Target.InScope)
+		doScopes(id, v.Target.InScope)
 	}
 	return true
 }
@@ -102,7 +102,7 @@ func task_update_db(file *[]byte, owner string) {
 
 				db.UpdateInScopes(scopes.ID, diff)
 
-				DoScopes(scopes.ID, diff)
+				doScopes(scopes.ID, diff)
 			}
 		} else {
 			v.Owner = owner
@@ -114,7 +114,7 @@ func task_update_db(file *[]byte, owner string) {
 				logrus.Fatal("task_update_db(): ", err)
 				continue
 			}
-			DoScopes(id, v.Target.InScope)
+			doScopes(id, v.Target.InScope)
 
 		}
 
@@ -181,6 +181,7 @@ func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 	// var subs []string
 	subfinderOpts := &subfinder.Options{
 		Threads:            10,
+		Silent:             true,
 		Timeout:            30,
 		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
@@ -205,10 +206,6 @@ func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 		fmt.Println(err)
 	}
 
-	// result := output.String()
-	// subs = strings.Split(result, "\n")
-
-	// return subs
 }
 
 func enumerateTech(prog_id primitive.ObjectID, domain string) {
@@ -271,7 +268,7 @@ func isWild(domain string) bool {
 	return matched
 }
 
-func DoScopes(id primitive.ObjectID, assets []structure.InScope) {
+func doScopes(id primitive.ObjectID, assets []structure.InScope) {
 
 	var s_type, d string
 
