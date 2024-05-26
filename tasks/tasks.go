@@ -35,13 +35,10 @@ func Start() {
 	//download json file
 	dls := getDls()
 
-	// test
-
 	for k, v := range dls {
 		var file = readFile(v)
 		if db.DBExists {
 			task_update_db(file, k)
-			// test
 			break
 			//
 		} else {
@@ -150,10 +147,7 @@ func getDls() map[string]string {
 		time.Sleep(time.Millisecond * 500)
 	}
 
-	// test
-	return map[string]string{"hackerone": "HackerOne.json"}
-	//
-	// return map[string]string{"hackerone": "HackerOne.json", "intigriti": "Intigriti.json", "bugcrowd": "BugCrowd.json"}
+	return map[string]string{"hackerone": "HackerOne.json", "intigriti": "Intigriti.json", "bugcrowd": "BugCrowd.json"}
 }
 
 func runCommand(command string) {
@@ -204,7 +198,6 @@ func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 		// log.Fatalf("failed to enumerate single domain: %v", err)
 		fmt.Println(err)
 	}
-
 }
 
 func enumerateTech(prog_id primitive.ObjectID, domain string) {
