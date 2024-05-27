@@ -1,11 +1,11 @@
 package tasks
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"os/exec"
 	"regexp"
@@ -60,7 +60,6 @@ func task_init(file *[]byte, owner string) bool {
 	for _, v := range temp {
 		v.Owner = owner
 		id, err2 := db.AddProgram(&v)
-		// EnumerateSubs(v.in_scopes)
 		if err2 != nil {
 			logrus.Fatal("task_init() - addProgram : ", err2)
 			continue
@@ -171,15 +170,16 @@ func readFile(name string) *[]byte {
 
 // #phase 2:
 
-func enumerateSubs(prog_id primitive.ObjectID, domain string) {
-	// var subs []string
+func enumerateSubs(domain string) string {
+
 	subfinderOpts := &subfinder.Options{
 		Threads:            10,
 		Silent:             true,
 		Timeout:            30,
 		MaxEnumerationTime: 10,
 		ResultCallback: func(s *resolve.HostEntry) {
-			enumerateTech(prog_id, s.Host)
+			// I commented this for get all output at same time and save in a file.
+			// enumerateTech(prog_id, s.Host)
 		},
 
 		ProviderConfig: "~/.config/subfinder/provider-config.yaml",
@@ -192,21 +192,35 @@ func enumerateSubs(prog_id primitive.ObjectID, domain string) {
 		fmt.Println(err)
 	}
 
-	output := &bytes.Buffer{}
+	// I commented this:
+	// output := &bytes.Buffer{}
+
+	// Open a file for writing
+	fileName := fmt.Sprintf("subdomains_%04x.txt", rand.Intn(0x10000))
+	file, err := os.Create(fileName)
+	if err != nil {
+		fmt.Printf("Error creating file: %v\n", err)
+		return ""
+	}
+	defer file.Close()
+
 	// To run subdomain enumeration on a single domain
-	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{output}); err != nil {
+	if err = subfinder.EnumerateSingleDomainWithCtx(context.Background(), domain, []io.Writer{file}); err != nil {
 		// log.Fatalf("failed to enumerate single domain: %v", err)
 		fmt.Println(err)
 	}
+
+	return fileName
 }
 
-func enumerateTech(prog_id primitive.ObjectID, domain string) {
+func enumerateTechSingle(prog_id primitive.ObjectID, domain string) {
 
 	temp := structure.Subdomain{ProgramID: prog_id, Sub: domain}
 
 	options := httpx.Options{
 		Methods:                 "GET",
 		Silent:                  true,
+		Threads:                 1,
 		InputTargetHost:         goflags.StringSlice{domain},
 		ResponseHeadersInStdout: true,
 		OnResult: func(r httpx.Result) {
@@ -216,6 +230,57 @@ func enumerateTech(prog_id primitive.ObjectID, domain string) {
 				return
 			}
 			// fill a temp var && calling AddSub()
+			temp.SC = r.StatusCode
+
+			if r.Location != "" {
+				temp.Locatoin = r.Location
+			}
+
+			temp.Icon = r.FavIconMMH3
+			temp.CDN = r.CDN
+
+			temp.Detail.A = r.A
+			temp.Detail.Cname = r.CNAMEs
+			temp.Detail.Tech = r.Technologies
+			temp.Detail.Headers = r.ResponseHeaders
+
+		},
+	}
+	if err := options.ValidateOptions(); err != nil {
+		// logrus.Fatal(err)
+		fmt.Println("tasks.EnumerateTech(): ", err)
+	}
+	httpxRunner, err := httpx.New(&options)
+	if err != nil {
+		// logrus.Fatal(err)
+		fmt.Println("tasks.EnumerateTech(): ", err)
+	}
+	defer httpxRunner.Close()
+	httpxRunner.RunEnumeration()
+
+	if temp.SC != 0 {
+		db.AddSub(&temp)
+	}
+}
+
+func enumerateTechMulti(prog_id primitive.ObjectID, file_name string) {
+
+	temp := structure.Subdomain{ProgramID: prog_id}
+
+	options := httpx.Options{
+		Methods:                 "GET",
+		Silent:                  true,
+		Threads:                 10,
+		InputFile:               file_name,
+		ResponseHeadersInStdout: true,
+		OnResult: func(r httpx.Result) {
+			// handle error
+			if r.Err != nil {
+				// fmt.Printf("[Err] %s: %s\n", r.Input, r.Err)
+				return
+			}
+			// fill a temp var && calling AddSub()
+			temp.Sub = r.Input
 			temp.SC = r.StatusCode
 
 			if r.Location != "" {
@@ -271,9 +336,17 @@ func doScopes(id primitive.ObjectID, assets []structure.InScope) {
 
 				//get rid of Asterisk
 				d = strings.TrimLeft(v.Asset, "*.")
-				enumerateSubs(id, d)
+
+				file_name := enumerateSubs(d)
+				enumerateTechMulti(id, file_name)
+
+				// delete file
+				if err := os.Remove(file_name); err != nil {
+					fmt.Printf("Error deleting file: %v\n", err)
+					continue
+				}
 			} else {
-				enumerateTech(id, v.Asset)
+				enumerateTechSingle(id, v.Asset)
 			}
 		}
 		continue
