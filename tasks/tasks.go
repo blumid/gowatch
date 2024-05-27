@@ -281,6 +281,7 @@ func enumerateTechMulti(prog_id primitive.ObjectID, file_name string) {
 			}
 			// fill a temp var && calling AddSub()
 			temp.Sub = r.Input
+
 			temp.SC = r.StatusCode
 
 			if r.Location != "" {
@@ -294,6 +295,10 @@ func enumerateTechMulti(prog_id primitive.ObjectID, file_name string) {
 			temp.Detail.Cname = r.CNAMEs
 			temp.Detail.Tech = r.Technologies
 			temp.Detail.Headers = r.ResponseHeaders
+
+			if temp.SC != 0 {
+				db.AddSub(&temp)
+			}
 
 		},
 	}
@@ -309,9 +314,6 @@ func enumerateTechMulti(prog_id primitive.ObjectID, file_name string) {
 	defer httpxRunner.Close()
 	httpxRunner.RunEnumeration()
 
-	if temp.SC != 0 {
-		db.AddSub(&temp)
-	}
 }
 
 func isWild(domain string) bool {
